@@ -27,17 +27,18 @@ yesterday = one_day_ago.strftime("%Y%m%d")
 
 #download a source  via ftp login
 
-def download_ftp(source, model, filename):
-    try:
-        FTP(source['url'])
-        ftp.login(source['username'], source['password'])
-    except:
-        print('could not connect to ' + source['url'])
-        return
-    if os.path.isfile(filename):
-        print('file ' + filename + 'exists skipping')
-    else:
-        with FTP(source['url']) as ftp:
+
+def download_ftp(source, model, tmpdir, filename):
+    with FTP(source['url']) as ftp:
+        try:
+            FTP(source['url'])
+            ftp.login(source['username'], source['password'])
+        except:
+            print('could not connect to ' + source['url'])
+            return
+        if os.path.isfile(filename):
+            print('file ' + filename + 'exists skipping')
+        else:
             try:
                  ftp.cwd(source['ftp_dir'])
                  _list = ftp.nlst()
@@ -46,14 +47,14 @@ def download_ftp(source, model, filename):
                 return
 
             for i in _list:
-                if today in i and model in i:
+                if today in str(i) and model['name'] in str(i):
                     print('Downlading ' + i )
-                    ftp.retrbinary('RETR ' + i, open('tmp/'+ i, 'wb').write)
+                    ftp.retrbinary('RETR ' + i, open(tmpdir+ i, 'wb').write)
                     print('done')
-                    shutil.copy2('tmp/' + i, filename)
+                    shutil.copy2(tmpdir + i, filename)
                     print('File copied as ' + filename)
-                    os.remove(filename)
-                    print('tmp/' + i + 'removed')
+                    os.remove(tmpdir+ i)
+                    print(tmpdir + i + 'removed')
 
 
 
@@ -63,15 +64,16 @@ def download_http(source, model, filename):
     :rtype: object
     """
     if source['type'] == 'thredds_server':
-        downloadfile = source['url']  + '_'.join([source['prefix'], model['name'], model['quantity'], today]) + source['ext']
+        downloadfile = source['url']  + '_'.join(([source['prefix'], model['name'], model['quantity'], today])) + source['ext']
         print(downloadfile)
         #TODO add basic autehntication in TDS
         sourceauth = (source['username'], source['password'])
-        with requests.get(downloadfile, auth=HTTPBasicAuth(sourceauth), stream=True) as r:
+        with requests.get(downloadfile, stream=True) as r:
             if r._content:
                 with open(filename, 'wb') as fd:
                     for chunk in r.iter_content(chunk_size=128):
                         fd.write(chunk)
+
 
 
 
