@@ -9,5 +9,5 @@ def check_time(file, date_start, shape):
     :param shape: number of hourly time steps to have a valid file
     :return: true if the file is valid
     '''
-
+    pass
 #dataset.variables['valid_time'][0].values
