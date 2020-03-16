@@ -1,5 +1,9 @@
+#password and sensitive data
+sources.py
+
 .idea/
 __pycache__/
 tmp/
 data/
 forecasts/
+/venv/
