@@ -37,7 +37,9 @@ for s in Sources:
         elif s['type'] == 'script':
             download_script(iws_datadir, s, m, filename, today)
         if os.path.isfile(filename):
-            valid = check_time(filename, today, 48)
+	    #TODO enable validation for downloaded forecast
+            #valid = check_time(filename, today, 48)
+            valid = True
             if valid:
                 prepare_forecast(s,m,filename, today, processed_dir, tmpdir)
             else:
