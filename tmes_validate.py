@@ -10,7 +10,12 @@ def check_time(file, date_start, shape):
     :param shape: number of hourly time steps to have a valid file
     :return: true if the file is valid
     '''
-    ds = xr.open_dataset(file)
+    # check if file extension is grib
+    ext = os.path.splitext(os.path.basename(filename))[1]
+    if ext=='.grib':
+        ds = xr.open_dataset(file, engine='cfgrib')
+    else:
+        ds = xr.open_dataset(file)
     # get first timestamp value and compare with date start and midnight time
     datestring = np.datetime_as_string(ds.variables['time'][0].values)
     first_date = datetime.strptime(datestring.split('T')[0], "%Y-%m-%d")
