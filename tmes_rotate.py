@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import shutil
 import glob
 
+from tmes_validate import check_time
+
 # TMES rotate script
 
 
@@ -160,14 +162,18 @@ def archive_tmes(iws_datadir, var, datestring):
     cmd1_arguments = ['ncks','-O', '-d', 'time,0,23', filesrc, filedest]
     print(cmd1_arguments)
     p1 = run(cmd1_arguments)
-    cmd2_arguments = ['ls', newfile]
-    p2 = run(cmd2_arguments)
-    if p2.returncode==0:
+    #check if tmes in history is valid
+    valid = check_time(filedest, datestring, 24)
+    if not valid:
+        os.remove(filedest)
+        return 'old tmes not archived'
+    #check if new tmes is valid
+    p2 = check_time(newfile, today, 48)
+    if p2 and os.path.isfile(filesrc):
         #delete old file
-        d = run(['rm', filesrc], check=1)
-        return d.returncode
+        os.remove(filesrc)
     else:
-        return 'something went wrong in ncks'
+        return newfile + 'is not valid TMES'
 
 
 

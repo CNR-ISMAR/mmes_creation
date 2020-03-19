@@ -4,7 +4,7 @@ import os, sys
 from _datetime import datetime, timedelta
 from tmes_rotate import create_tmes, archive_tmes, prepare_forecast, prepare_grid, download_script
 from tmes_download import download_ftp, download_http
-
+from tmes_validate import check_time
 from sources import Sources
 
 
@@ -37,7 +37,12 @@ for s in Sources:
         elif s['type'] == 'script':
             download_script(iws_datadir, s, m, filename, today)
         if os.path.isfile(filename):
-            prepare_forecast(s,m,filename, today, processed_dir, tmpdir)
+            valid = check_time(filename, today, 48)
+            if valid:
+                prepare_forecast(s,m,filename, today, processed_dir, tmpdir)
+            else:
+                print('invalid file downloaded - deleted')
+                os.remove(filename)
             pass
 
 #prepare tmes_components
