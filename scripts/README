@@ -1,0 +1,13 @@
+
+ To create the mask:
+   cdo copy ISSOS_sea-level.nc tmp1.nc
+   cdo seltimestep,1 tmp1.nc tmp2.nc
+   ncrename -v  water_level,lsmask tmp2.nc
+   ncap2 -s 'where(lsmask != 0.) lsmask=1' tmp2.nc mask.nc
+   rm -f tmp1.nc tmp2.nc
+   la maschera e' stata poi tagliata su ADRION con Qgis usando
+   adrion_contour.zip 
+   (usare raster, extraction, clip raster by mask layer)
+   salvo il raster come tif e converto from tif to nc con
+   gdal_translate -of netCDF -co "FOMRAT=NC4" maschera.tif maschera.nc
+
