@@ -21,8 +21,6 @@ from tmes_validate import check_time
 #iws_datadir = '/usr3/iwsdata'
 #tmes_datadir =  os.path.join(iws_datadir, 'TMES')
 
-# TODO create new tmes
-#by now just copy old file
 
 
 def prepare_forecast(source,model, filename, filedate, outdir, tmpdir, mask='TMES_mask_002.nc'):
@@ -121,27 +119,23 @@ def create_tmes(iws_datadir, var, datestring):
     ''' launch the script for merging tmes components based on current variable
      directories are hard coded in crea_tmes_sea_level.sh and crea_tmes_waves.sh
      '''
-
-    one_day_ago = datetime.strptime(datestring, "%Y%m%d") -timedelta(days=1)
-    yesterday = one_day_ago.strftime("%Y%m%d")
-    oldtmes = os.path.join(iws_datadir, 'TMES', 'TMES'+ '_' + var + '_'  + yesterday+'.nc')
     newtmes = os.path.join(iws_datadir, 'TMES', 'TMES'+ '_' + var + '_'  + datestring +'.nc')
-    if not os.path.isfile(oldtmes):
-        #raise FileNotFoundError
-        print ("File " +  oldtmes + " not found.")
-        #return 1
 
     if os.path.isfile(newtmes):
         # raise FileExistsError
         print("File " + newtmes + " already exists, overwriting")
-        #copy file and dd last 24 hours
-
-        #cmd2_arguments = ['ncap2', '-s', 'time=int(time+24* 3600.)', '-O', oldtmes, newtmes]
+    #launch crea_tmes script
+    #TODO port this part in python
     script= iws_datadir + '/bin/crea_tmes_' + var +'.sh'
-    cmd2_arguments = [script,  datestring]
-    print(' '.join(cmd2_arguments))
-    p = run(cmd2_arguments, check=True)
-    return  p.returncode
+    cmd1_arguments = [script,  datestring]
+    print(' '.join(cmd1_arguments))
+    p1 = run(cmd1_arguments, check=True)
+    if p1:
+        #create link in history collection
+        linktmes = os.path.join(iws_datadir, 'TMES','history', 'TMES'+ '_' + var + '_'  + datestring +'.nc')
+        cmd2_arguments = ['cp', newtmes, linktmes]
+        p2 = run(cmd2_arguments, check=True)
+    return  p1.returncode
 
 
 
@@ -164,6 +158,7 @@ def archive_tmes(iws_datadir, var, datestring):
     p1 = run(cmd1_arguments)
     #check if tmes in history is valid
     valid = check_time(filedest, datestring, 24)
+    valid = True
     if not valid:
         os.remove(filedest)
         return 'old tmes not archived'
