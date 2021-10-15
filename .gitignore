@@ -1,5 +1,9 @@
 #password and sensitive data
 sources.py
+sources.json
+sources.json.bak
+
+
 
 .idea/
 __pycache__/
@@ -7,3 +11,9 @@ tmp/
 data/
 forecasts/
 /venv/
+
+scripts/remap_grid_ADRION
+
+docs/installazione.txt
+docs/errori_da _gestire.txt
+docs/miglioramenti.txt

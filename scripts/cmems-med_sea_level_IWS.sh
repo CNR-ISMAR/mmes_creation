@@ -14,26 +14,29 @@ Define_dir() {
   ddate2=`date -d "$date + 1 days" +"%Y-%m-%d"`
   motuT1=`date -d "$date -1 hours" +"%Y-%m-%d %H:%M:%S"`
   motuT2=`date -d "$date 3 days" +"%Y-%m-%d"`   
-
-
   var="sea_level"
   thrdir="/usr3/thredds"
+
+# set username and password from arguments
+  [ -n "$3" ] && user=$3
+  [ -n "$4" ] && pass=$4
+  echo ${user}'/'${pass}
 
   iwsdir="/usr3/iwsdata"
   tiddir="${iwsdir}/forecasts/TIDE" 
   locdir="${iwsdir}/forecasts/CMCC"   
-  outdir="${iwsdir}/tmes_components/${date}"
+  outdir="${iwsdir}/mmes_components/${date}"
   bindir="${iwsdir}/bin"
   tmpdir="${iwsdir}/tmp"
   weidir="${bindir}/weights"
   mask="${bindir}/TMES_mask_002.nc"
-  motu="python2.7 -m motuclient"
+  motu="python -m motuclient"
 
 
 
   lfile="med-cmcc-ssh-an-fc-hts"
-  slfile="cmcc_mfs_sea_level_${date}.nc"
-
+  #slfile="cmcc_mfs_sea_level_${date}.nc"
+  slfile=$2
   # Region for the whole grid
   x1="12"
   x2="23"
@@ -50,10 +53,10 @@ Get_myocean() {
 
 
 # Set your CMEMS user and password
-   user="***********"
-   pass="***********"
+   user=${user}
+   pass=${pass}
    murl="http://nrt.cmems-du.eu/motu-web/Motu"
-   surl="MEDSEA_ANALYSIS_FORECAST_PHY_006_013-TDS"
+   surl="MEDSEA_ANALYSISFORECAST_PHY_006_013-TDS"
    tsleep=10
    varname="zos"
    EXITSTATUS=-1
@@ -81,26 +84,6 @@ Get_myocean() {
     fi
 }
 
-#--------------------------------------------------
-Remap(){
-#--------------------------------------------------
-  #Spatial interpolation
-  cdo remap,remap_grid_ADRION,${weidir}/MFS_${var}_weights.nc ${locdir}/${slfile} ${tmpdir}/mfs_tmp.nc
-  #Temporal interpolation
-  cdo inttime,${ddate},00:00:00,1hour ${tmpdir}/mfs_tmp.nc ${tmpdir}/mfs_tmp1.nc
-  #Get fields in the 00-23 time range
-  cdo seldate,${ddate}T00:00:00,${ddate2}T23:00:00 ${tmpdir}/mfs_tmp1.nc ${tmpdir}/mfs_tmp2.nc
-  #Rename variable
-  ncrename -v zos,${var} ${tmpdir}/mfs_tmp2.nc
-  #Extrapolate on missing values (bilinear interpolation)
-  cdo fillmiss ${tmpdir}/mfs_tmp2.nc ${tmpdir}/mfs_tmp3.nc
-  #Mask values outside ADRION area
-  cdo mul $mask ${tmpdir}/mfs_tmp3.nc ${tmpdir}/mfs_tmp4.nc
-  #Add tide
-  cdo -O enssum ${tiddir}/ismar_tide_sea_level_${date}.nc ${tmpdir}/mfs_tmp4.nc ${outdir}/${slfile}
-  #cdo seldate,2018-10-29T00:00:00,2018-10-30T23:00:00 MFS_sea_level.nc 1111.nc
-  rm -f ${tmpdir}/mfs_tmp*.nc #orig/${outfil}_orig.nc
-}
 
 ##########################################################
 #               MAIN
@@ -109,7 +92,7 @@ Remap(){
 #-------------------------------------------------------------
 # Define directory name
 #-------------------------------------------------------------
-Define_dir $1 $2 $3 $4 $5 $6
+Define_dir $1 $2 $3 $4 $5 $6 $7
 
 #-------------------------------------------------------------
 # Download files

@@ -11,6 +11,9 @@ def check_time(file, date_start, shape):
     :param shape: number of hourly time steps to have a valid file
     :return: true if the file is valid
     '''
+    #check if file exists
+    if not os.path.isfile(file):
+        return False
     # check if file extension is grib
     ext = os.path.splitext(os.path.basename(file))[1]
     if ext=='.grb':

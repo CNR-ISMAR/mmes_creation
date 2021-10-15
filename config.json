@@ -1,0 +1,6 @@
+{
+  "data_dir": "/usr3/iwsdata",
+  "sources_file": "sources.json",
+  "ensemble_name": "TMES"
+
+}

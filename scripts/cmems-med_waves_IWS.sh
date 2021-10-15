@@ -4,7 +4,7 @@
 # Require motuclient python to download files from CMEMS database
 #   change permission: umask 022
 #   intall: python -m pip install motuclient 
-set -x 
+# set -x
 #--------------------------------------------------
 Define_dir() {
 #--------------------------------------------------
@@ -18,19 +18,24 @@ Define_dir() {
   var="waves"
   thrdir="/usr3/thredds"
 
+# set username and password from arguments
+  [ -n "$3" ] && user=$3
+  [ -n "$4" ] && pass=$4
+  echo ${user}'/'${pass}
+
   iwsdir="/usr3/iwsdata"
   tiddir="${iwsdir}/forecasts/TIDE"
   locdir="${iwsdir}/forecasts/CMCC"
-  outdir="${iwsdir}/tmes_components/${date}"
+  outdir="${iwsdir}/mmes_components/${date}"
   bindir="${iwsdir}/bin"
   tmpdir="${iwsdir}/tmp"
   weidir="${bindir}/weights"
   mask="${bindir}/TMES_mask_002.nc"
-  motu="python2.7 -m motuclient"
+  motu="python -m motuclient"
 
   wfile="med-hcmr-wav-an-fc-h"
-  swfile="hcmr_wam_waves_${date}.nc"
-
+#  swfile="hcmr_wam_waves_${date}.nc"
+  swfile=$2
   # Region for the whole grid
   x1="12"
   x2="23"
@@ -46,10 +51,10 @@ Get_myocean() {
    echo '-----------------------------------------------'
 
 # Set your CMEMS user and password
-   user="***********"
-   pass="***********"
+   user=${user}
+   pass=${pass}
    murl="http://nrt.cmems-du.eu/motu-web/Motu"
-   surl="MEDSEA_ANALYSIS_FORECAST_WAV_006_017-TDS"
+   surl="MEDSEA_ANALYSISFORECAST_WAV_006_017-TDS"
    tsleep=10
 
    #ADRIATIC
@@ -80,7 +85,7 @@ Get_myocean() {
 #-------------------------------------------------------------
 # Define directory name
 #-------------------------------------------------------------
-Define_dir $1 $2 $3 $4 $5 $6
+Define_dir $1 $2 $3 $4
 
 #-------------------------------------------------------------
 # Download files

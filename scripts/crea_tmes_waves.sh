@@ -1,5 +1,5 @@
 #!/bin/bash  
-# set -x
+ # set -x
 
 #--------------------------------------------------
 Define_date() {
@@ -15,9 +15,10 @@ Define_date() {
 Define_dir() {
 #--------------------------------------------------
   var="waves"
+  scriptdir=`dirname "$0"`
   startdir="/usr3/iwsdata"
-  origdir="${startdir}/tmes_components/${fdate}"
-  outputdir="/usr3/iwsdata/TMES"
+  origdir="${startdir}/mmes_components/${fdate}"
+  outputdir="/usr3/iwsdata/MMES"
   tmpdir="${startdir}/tmp"
 
   #models=(KASSANDRA MFS NETTUNO SIMM HENETUS COAWST1km SMMO SWANIT WWMHR)
@@ -43,7 +44,8 @@ Define_dir
 
 
 files=($origdir/*$var*.nc)
-tmesf="${outputdir}/TMES_${var}_${fdate}.nc"
+# tmesf="${outputdir}/MMES_${var}_${fdate}.nc"
+tmesf=$2
 printf '%s\n' "${files[@]}"
 echo "tmesfile $tmesf"
 
@@ -84,7 +86,7 @@ cdo -O expr,"wmd_std=deg(asin(wdstd)*(1.+0.15470054*wdstd^3))" ${tmpdir}/${var}_
 ncrename -v wmd_std,wmd-std ${tmpdir}/${var}_${fdate}_wmdstd.nc 
 cdo -O merge ${tmpdir}/${var}_${fdate}_std.nc ${tmpdir}/${var}_${fdate}_wmdstd.nc ${tmpdir}/${var}_${fdate}_std1.nc
 cdo -O settabnum,141 ${tmpdir}/${var}_${fdate}_std1.nc ${tmpdir}/${var}_${fdate}_std2.nc
-#cdo expr,"uncertaintly=(std/water_level)*100" TMES_${var}_${fdate}.nc
+#cdo expr,"uncertaintly=(std/water_level)*100" MMES_${var}_${fdate}.nc
 cdo -O merge ${tmpdir}/${var}_${fdate}_mean1.nc ${tmpdir}/${var}_${fdate}_std2.nc ${tmpdir}/${var}_${fdate}_tmp.nc
 #rm -f $tmesf
 cdo -O setreftime,2019-01-01,00:00:00,hours ${tmpdir}/${var}_${fdate}_tmp.nc $tmesf
@@ -98,9 +100,11 @@ do
    MODELS="${MODELS},${f%_waves*}"
 done
 echo ${MODELS#,}
-read -n 1 -p   continue?
+# read -n 1 -p   continue?
 # add models list to source attribute
 ncatted -O -h -a source,global,o,c,"Ensemble generated from ${#files[@]} models: ${MODELS#,}" $tmesf  
+wvcomment=$(cat ${scriptdir}/waves_list.txt)
+ncatted -O -h -a comment,global,o,c,"$wvcomment" $tmesf
 
 #add standard_names
 ncatted -O -a standard_name,wsh-mean,o,c,"sea_surface_wave_significant_height" \
@@ -109,7 +113,10 @@ ncatted -O -a standard_name,wsh-mean,o,c,"sea_surface_wave_significant_height" \
 -a long_name,wmp-std,o,c,"Mean wave period" -a standard_name,wmp-std,o,c,"wave_mean_period_std" \
 -a long_name,wmd-mean,o,c,"Mean wave direction" -a standard_name,wmd-mean,o,c,"sea_surface_wave_from_direction" \
 -a long_name,wmd-std,o,c,"Mean wave direction std" -a standard_name,wmd-std,o,c,"sea_surface_wave_from_direction_devstd" $tmesf
+# moved in python
+#cp $tmesf ${outputdir}/history/MMES_${var}_${fdate}.nc
 #remove tempo files
 rm -f ${tmpdir}/${var}_${fdate}_*.nc*
 rm -f ${tmpdir}/*${var}*.nc*
   
+

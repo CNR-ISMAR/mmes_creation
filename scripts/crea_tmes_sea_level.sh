@@ -14,8 +14,8 @@ Define_date() {
 Define_dir() {
 #--------------------------------------------------
   var="sea_level"
-  origdir="/usr3/iwsdata/tmes_components/${fdate}"
-  outputdir="/usr3/iwsdata/TMES"
+  origdir="/usr3/iwsdata/mmes_components/${fdate}"
+  outputdir="/usr3/iwsdata/MMES"
 	
   #model	s=(KASSANDRA MFS NETTUNO SIMM HENETUS COAWST1km SMMO SWANIT WWMHR)
 }
@@ -44,7 +44,8 @@ Define_dir
 mv "$origdir/ismar_tide_sea_level_$date.nc" "$origdir/ismar_tide_sea_level_$date.tide"
 echo $fdate
 files=($origdir/*$var*.nc)
-tmesf="${outputdir}/TMES_${var}_${fdate}.nc"
+# tmesf="${outputdir}/MMES_${var}_${fdate}.nc"
+tmesf=$2
 printf '%s\n' "${files[@]}"
 echo "tmesfile $tmesf"
 
@@ -67,6 +68,9 @@ echo ${MODELS#,}
 #read -n 1 -p   continue?
 cdo -O setreftime,2019-01-01,00:00:00,hours tmp.nc $tmesf
 ncatted -O -h -a source,global,o,c,"Ensemble generated from ${#files[@]} models: ${MODELS#,}" $tmesf
-#cdo expr,"uncertaintly=(std/${var})*100" TMES_${var}_${fdate}.nc)"  
- 
+#cdo expr,"uncertaintly=(std/${var})*100" MMES_${var}_${fdate}.nc)"
+# moved to python tmes_rotate.py
+#cp $tmesf ${outputdir}/history/MMES_${var}_${fdate}.nc
 rm -f mean.nc std*.nc tmp.nc
+slcomment=$(cat ${scriptdir}/sealevel_list.txt)
+ncatted -O -h -a comment,global,o,c,"$slcomment" $tmesf

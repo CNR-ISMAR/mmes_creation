@@ -1,0 +1,113 @@
+{
+    "sources": [
+        {
+            "fullname": "human readable name",
+            "name": "lowercase short name for files",
+            "type": "can be one of: [ftp, http_login, script]",
+            "url": "url of http or ftp server",
+            "ftp_dir": "ftp intial dir",
+            "username": "username to be used to login to http or ftp server",
+            "password": "password to be used to login to http or ftp server",
+            "models": [
+                {
+                    "system": "name of the system, first of all set up the tide model",
+                    "name": "name of model engine (eg. shyfem)",
+                    "meteo": "name(s) of meteo model used",
+                    "var": "variable of the ensamble thsi models refers to (eg. sea_level | waves)",
+                    "var_name": "original variable name (e.g. slh )",
+                    "ext": "extension of the original file .nc or .grib",
+                    "fact": "offset to geoid",
+                    "filename": "original file name set {currentdate} for date in AAAMMDD format and {currentisodate} for date in AAAA-MM-DD format. set {ext} for extension",
+                    "script": "filename ",
+                    "info": ""
+                },
+                {
+                    "system": "name of the system, first of all set up the tide model",
+                    "name": "name of model engine (eg. shyfem)",
+                    "meteo": "name(s) of meteo model used",
+                    "var": "variable of the ensamble thsi models refers to (eg. sea_level | waves)",
+                    "var_name": "original variable name (e.g. slh )",
+                    "ext": "extension of the original file .nc or .grib",
+                    "fact": "offset to geoid",
+                    "filename": "original file name set {currentdate} for date in AAAMMDD format and {currentisodate} for date in AAAA-MM-DD format. set {ext} for extension",
+                    "script": "filename ",
+                    "info": ""
+                }
+            ]
+        },
+        {
+            "fullname": "cmems",
+            "name": "cmems",
+            "type": "script",
+            "url": "---",
+            "ftp_dir": "---",
+            "username": "*******",
+            "password": "****",
+            "models": [
+                {
+                    "system": "mfs",
+                    "name": "nemo",
+                    "source": "cmcc",
+                    "var": "sea_level",
+                    "ext": ".nc",
+                    "script": "cmems-med_sea_level_IWS.sh",
+                    "info": ""
+                },
+                {
+                    "system": "wam",
+                    "var": "waves",
+                    "source": "hcmr",
+                    "ext": ".nc",
+                    "script": "cmems-med_waves_IWS.sh",
+                    "info": ""
+                }
+            ]
+        },
+        {
+            "fullname": "ARSO",
+            "type": "login_ftp",
+            "url": "ftp.<yourdomain>",
+            "ftp_dir": "currentdate",
+            "username": "*******",
+            "password": "*****",
+            "name": "arso",
+            "models": [
+                {
+                    "system": "smmo",
+                    "name": "nemo",
+                    "meteo": "aladin",
+                    "var": "sea_level",
+                    "ext": ".grb",
+                    "filename": "smmo_{currentdate}00{ext}"
+                },
+                {
+                    "system": "smmo",
+                    "name": "wam",
+                    "meteo": "aladin",
+                    "var": "waves",
+                    "ext": ".grb",
+                    "filename": "smmo_{currentdate}00{ext}"
+                }
+            ]
+        },
+        {
+            "fullname": "COV",
+            "type": "http_login",
+            "url": "https://<yourthreddsserveraddress>/thredds/fileServer/",
+            "ftp_dir": "---",
+            "username": "**********",
+            "password": "**********",
+            "name": "cov",
+            "models": [
+                {
+                    "system": "shymed",
+                    "name": "shyfem",
+                    "var": "sea_level",
+                    "source": "cov",
+                    "ext": ".nc",
+                    "filename": "shy/files/cov_shymed00-v02n_sea_level_{currentdate}00{ext}"
+                }
+            ]
+        }
+    ]
+}

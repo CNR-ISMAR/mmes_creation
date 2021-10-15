@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os, json
 
 from subprocess import call, run, CompletedProcess
 from datetime import datetime, timedelta
@@ -9,21 +9,23 @@ import glob
 
 from tmes_validate import check_time
 
-# TMES rotate script
+# MMES rotate script
 
 
 # general variables
-
+#load generl config from json
+Config = json.load(open(os.getcwd() + '/config.json'))
+ensemble_name = Config["ensemble_name"]
 # now = datetime.now()
 # one_day_ago = now -timedelta(days=1)
 # today = now.strftime("%Y%m%d")
 #yesterday = one_day_ago.strftime("%Y%m%d")
 #iws_datadir = '/usr3/iwsdata'
-#tmes_datadir =  os.path.join(iws_datadir, 'TMES')
+#tmes_datadir =  os.path.join(iws_datadir, 'MMES')
 
 
 
-def prepare_forecast(source,model, filename, filedate, outdir, tmpdir, mask='TMES_mask_002.nc'):
+def prepare_forecast(source,model, filename, filedate, outdir, tmpdir, mask='MMES_mask_002.nc'):
     '''
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -31,7 +33,7 @@ def prepare_forecast(source,model, filename, filedate, outdir, tmpdir, mask='TME
     :return: 0 or error
     '''
     proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.nc'
-    if model['name']=='tide':
+    if model['system']=='tide':
         proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.tide'
     outputdir = os.path.join(outdir, filedate)
     processedfile =  os.path.join(outputdir, proc_filename)
@@ -69,17 +71,19 @@ def prepare_forecast(source,model, filename, filedate, outdir, tmpdir, mask='TME
         cmd6_arguments = ['cdo', 'expr,"' + model['var'] + '=' + model['var'] + '-' + model['fact'] +'"',  tmpdir + 'tmp2.nc', tmpdir + 'tmp3.nc']
         p6 = run(cmd6_arguments)
         #Mask values outside ADRION area
-        cmd7_arguents = ['cdo', '-O', 'mul',  mask,  tmpdir + 'tmp3.nc', processedfile]
+        cmd7_arguments = ['cdo', '-O', 'mul',  mask,  tmpdir + 'tmp3.nc', processedfile]
         p7 = run(cmd7_arguments)
         for i in glob.glob(tmpdir + u'tmp*'):
             os.unlink(i)
         #rm -f out.nc tmp.nc tmp1.nc tmp2.nc tmp3.nc
     else:
-        bindir = tmpdir.replace('tmp', 'bin')
-        script = bindir + 'IWS_TMES_' + model['var'] + '.sh'
+        #TODO port preparation in python
+        current_dir = os.getcwd()
+        script = current_dir + '/scripts/' + 'IWS_TMES_' + model['var'] + '.sh'
         if not os.path.isfile(script):
+            print('preparation script not found')
             return
-        cmd_arguments = [script, filedate, model['name'], filename, processedfile,]
+        cmd_arguments = [script, filedate, model['system'], filename, processedfile,]
         print(' '.join(cmd_arguments))
         try:
             p = run(cmd_arguments, check=True)
@@ -98,7 +102,7 @@ def prepare_grid():
     ny = ((y1- y0)/dy)+1
     y1 = (y1-dy)
 
-    with open('remap_grid_ADRION', 'a') as f:
+    with open('scripts/remap_grid_ADRION', 'a') as f:
         f.write("gridtype = lonlat\n")
         f.write("xsize = " + str(nx) + "\n")
         f.write("ysize = " + str(ny) + "\n")
@@ -107,34 +111,30 @@ def prepare_grid():
         f.write("yfirst = " + str(y0) + "\n")
         f.write("yinc = " + str(dy) + "\n")
 
-def download_script(iws_datadir, source, model, filename, filedate):
-    if os.path.isfile(filename):
-        print('file ' + filename + ' already exists skipping')
-    else:
-        script = iws_datadir + '/bin/' + model['script']
-        cmd_arguments = [script, filedate]
-        p = run(cmd_arguments)
+
 
 def create_tmes(iws_datadir, var, datestring):
     ''' launch the script for merging tmes components based on current variable
      directories are hard coded in crea_tmes_sea_level.sh and crea_tmes_waves.sh
      '''
-    newtmes = os.path.join(iws_datadir, 'TMES', 'TMES'+ '_' + var + '_'  + datestring +'.nc')
+    newtmes = os.path.join(iws_datadir, ensemble_name, ensemble_name + '_' + var + '_'  + datestring +'.nc')
 
     if os.path.isfile(newtmes):
         # raise FileExistsError
         print("File " + newtmes + " already exists, overwriting")
     #launch crea_tmes script
     #TODO port this part in python
-    script= iws_datadir + '/bin/crea_tmes_' + var +'.sh'
-    cmd1_arguments = [script,  datestring]
+    current_dir = os.getcwd()
+    script= current_dir + '/scripts/crea_tmes_' + var +'.sh'
+    cmd1_arguments = [script,  datestring, newtmes]
     print(' '.join(cmd1_arguments))
     p1 = run(cmd1_arguments, check=True)
     if p1:
-        #create link in history collection
-        linktmes = os.path.join(iws_datadir, 'TMES','history', 'TMES'+ '_' + var + '_'  + datestring +'.nc')
-        cmd2_arguments = ['cp', newtmes, linktmes]
-        p2 = run(cmd2_arguments, check=True)
+        #copy MMES in history collection
+        linktmes = os.path.join(iws_datadir, ensemble_name,'history', ensemble_name + '_' + var + '_'  + datestring +'.nc')
+        if os.path.exists(newtmes):
+            cmd2_arguments = ['cp', newtmes, linktmes]
+            p2 = run(cmd2_arguments, check=True)
     return  p1.returncode
 
 
@@ -142,13 +142,16 @@ def create_tmes(iws_datadir, var, datestring):
 def archive_tmes(iws_datadir, var, datestring):
     ''' Archive a subset of first 24 hours for old
     tmes files '''
-    tmes_datadir = os.path.join(iws_datadir, 'TMES')
+    tmes_datadir = os.path.join(iws_datadir, ensemble_name)
     # copy subset of old tmes(only 24 hour from forecast time)
-    filename =  'TMES_' + var + '_' + str(datestring) + '.nc'
+    filename =  ensemble_name + '_' + var + '_' + str(datestring) + '.nc'
+    if os.path.isfile(filename):
+        return "File " +  filename + " not found exiting"
+        #TODO gap filling procedure
     today = (datetime.strptime(datestring, "%Y%m%d") + timedelta(days=1)).strftime("%Y%m%d")
-    newfilename = 'TMES_' + var + '_' + str(today) + '.nc'
+    newfilename = ensemble_name + '_' + var + '_' + str(today) + '.nc'
     archivedir = 'history'
-    #subset_cmd = 'ncks -d time,0,23 TMES_waves_20190511.nc'
+    #subset_cmd = 'ncks -d time,0,23 MMES_waves_20190511.nc'
     filesrc =  os.path.join(tmes_datadir, filename)
     newfile =  os.path.join(tmes_datadir, newfilename)
     filedest = os.path.join(tmes_datadir,archivedir, filename)
@@ -158,17 +161,17 @@ def archive_tmes(iws_datadir, var, datestring):
     p1 = run(cmd1_arguments)
     #check if tmes in history is valid
     valid = check_time(filedest, datestring, 24)
-    valid = True
-    if not valid:
+    #valid = True
+    if not valid and os.path.isfile(filedest):
         os.remove(filedest)
-        return 'old tmes not archived'
+        return 'old tmes not valid removed'
     #check if new tmes is valid
     p2 = check_time(newfile, today, 48)
     if p2 and os.path.isfile(filesrc):
         #delete old file
         os.remove(filesrc)
     else:
-        return newfile + 'is not valid TMES'
+        return newfile + 'is not valid MMES'
 
 
 
