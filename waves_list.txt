@@ -1,0 +1,7 @@
+------
+
+List of possibile models for TMES Waves Ensemble.
+	ISMAR - Kassandra (engine: Shyfem, meteo: bolam/moloch, source: CNR-ISMAR https://www.ismar.cnr.it)
+	HCMR - WAM (engine:WAM, meteo: ecmwf, source: CMCC)
+	ARSO - smmo (engine:WAM, meteo: aladin, source ARSO 	
+

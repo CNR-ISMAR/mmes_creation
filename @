@@ -1,0 +1,1 @@
+    p1 = run(cmd1_arguments, check=True)
