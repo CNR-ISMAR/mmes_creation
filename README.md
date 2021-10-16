@@ -8,3 +8,24 @@ The software was originally developed for I-STORMS Web System and further improv
 Also bash scripts are required to process each forecast and compute Ensamble. Bash scripts are in *scripts* folder 
 
 Sources must be defined in sources.json file (refer to sources_template.json to define your list).
+
+## Installation
+Clone this repository in a convenient location.
+Prepare the data directory structure according to documentation
+Manually edit config.json according to your needs
+From the main directory launch
+
+```
+python manage.py new
+```
+
+to create a new source config file
+
+```
+python manage.py mod
+```
+
+to edit existing source config file
+
+
+
