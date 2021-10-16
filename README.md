@@ -11,7 +11,7 @@ Sources must be defined in sources.json file (refer to sources_template.json to 
 
 ## Installation
 Clone this repository in a convenient location.
-Prepare the data directory structure according to documentation
+Prepare the data directory structure according to [documentation](https://cnr-ismar.github.io/mmes_creation/_build/html/index.html)
 Manually edit config.json according to your needs
 From the main directory launch
 
