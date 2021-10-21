@@ -86,7 +86,7 @@ def download_http(source, model, filename, filedate=today, progress=False):
     :rtype: object
     """
 
-    if source['type'] == 'http_login':
+    if source['srctype'] == 'http_login':
         template = model['filename']
         fileisodate = filedate[0:4] + '-' + filedate[4:6] + '-' + filedate[6:8]
         remotefile = model['filename'].format(
@@ -103,10 +103,11 @@ def download_http(source, model, filename, filedate=today, progress=False):
             filedir = os.path.dirname(filename)
             if not os.path.isdir(filedir):
                 os.mkdir(filedir, 0o0775)
-            with requests.get(source['url'] + remotefile, auth=sourceauth, stream=True) as r:
+            fileurl = source['url'] + model['path'] + remotefile
+            with requests.get(fileurl, auth=sourceauth, stream=True) as r:
                 total_length = r.headers.get('content-length')
                 if r.status_code == 200:
-                    print('Downloading from ' + source['url'] + remotefile)
+                    print('Downloading from ' + fileurl)
                     with open(filename, 'wb') as fd:
                         dl = 0
                         total_length = int(total_length)
@@ -119,7 +120,7 @@ def download_http(source, model, filename, filedate=today, progress=False):
                                 sys.stdout.flush()
                         print('\n')
                 else:
-                    print(source['url'] + remotefile + ' get a status code of ' + str(r.status_code))
+                    print(fileurl + ' get a status code of ' + str(r.status_code))
 
 
 def download_script(scriptdir, source, model, filename, filedate, user="user", passw="passw"):

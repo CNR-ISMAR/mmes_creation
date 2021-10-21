@@ -1,0 +1,70 @@
+{
+  "sea_level_prepare": {
+    "variable_selection": [
+      "kassandra",
+      "tiresias",
+      "smmo",
+      "adroms"
+    ],
+    "temporal_interpolation": [
+      "kassandra",
+      "shymed",
+      "tiresias",
+      "smmo",
+      "mfs"
+    ],
+    "get_48hours": [
+      "kassandra",
+      "shymed",
+      "tiresias",
+      "issos",
+      "smmo",
+      "adroms"
+    ],
+    "add_factor": [
+      "kasssandra",
+      "tiresias",
+      "smmo"
+    ],
+    "mask_before_interpolation": [
+      {"adroms": "(:,0:1,0:135)" }
+    ],
+    "spatial_interpolation": [
+      "smmo",
+      "adroms",
+      "mfs"
+    ],
+    "extrapolate_missing": [
+      "smmo",
+      "adroms",
+      "mfs"
+    ],
+    "mask_after_interpolation": [
+      {"smmo": "(:, 0:117, 0:508)"},
+      {"adroms": "(:, 0:200,0:508)"}
+    ],
+    "mask_outside_area": [
+      "tide",
+      "kassandra",
+      "shymed",
+      "tiresias",
+      "issos",
+      "smmo",
+      "adroms",
+      "mfs"
+    ],
+    "add_tide": [
+      "shymed",
+      "issos",
+      "mfs"
+    ]
+  },
+  "waves_prepare": {
+    "merge_components": ["swanita"],
+    "variable_selection": ["kassandra", "wam"]
+  }
+}
+
+
+
+

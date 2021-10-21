@@ -15,11 +15,12 @@
                     "meteo": "name(s) of meteo model used",
                     "var": "variable of the ensamble thsi models refers to (eg. sea_level | waves)",
                     "var_name": "original variable name (e.g. slh )",
+                    "add_tide": "True or False if model needs to add tide",
                     "ext": "extension of the original file .nc or .grib",
                     "fact": "offset to geoid",
                     "filename": "original file name set {currentdate} for date in AAAMMDD format and {currentisodate} for date in AAAA-MM-DD format. set {ext} for extension",
-                    "script": "filename ",
-                    "info": ""
+                    "script": "filename of the script used to downlad",
+                    "info": "a link to webpage were system and model is descripted"
                 },
                 {
                     "system": "name of the system, first of all set up the tide model",
@@ -27,11 +28,12 @@
                     "meteo": "name(s) of meteo model used",
                     "var": "variable of the ensamble thsi models refers to (eg. sea_level | waves)",
                     "var_name": "original variable name (e.g. slh )",
+                    "add_tide": "True or False if model needs to add tide",
                     "ext": "extension of the original file .nc or .grib",
                     "fact": "offset to geoid",
                     "filename": "original file name set {currentdate} for date in AAAMMDD format and {currentisodate} for date in AAAA-MM-DD format. set {ext} for extension",
-                    "script": "filename ",
-                    "info": ""
+                    "script": "filename of the script used to downlad",
+                    "info": "a link to webpage were system and model is descripted"
                 }
             ]
         },

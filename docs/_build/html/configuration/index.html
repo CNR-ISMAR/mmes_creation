@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration files &mdash; MMES ingestion 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> MMES ingestion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Multi model ensemble system</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MMES ingestion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Configuration files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/configuration/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration-files">
+<span id="configuration"></span><h1>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline"></a></h1>
+<section id="suorce-configuration">
+<span id="src-config"></span><h2>Suorce Configuration<a class="headerlink" href="#suorce-configuration" title="Permalink to this headline"></a></h2>
+<p>Source list are stored by default in the <span class="guilabel">sources.json</span> file in the root directory, the filename can be customized in general config <span class="guilabel">config.json</span></p>
+<p>Refer to <span class="guilabel">source_template.json</span> to create your own configuration file.</p>
+<p>If the ensemble creation for sea_level include models that need to add tide to express total sea level we suggest to put the tide source in the first place of config file.</p>
+<p>You can also run from command line:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">new</span>
+<span class="pre">`</span></code></p>
+</div></blockquote>
+<p>This  will start a <em>step by step</em> procedure to create a new sources.json file. If something goes wrong you’ll find a convenient backup of your last configuration on sources.json.bak</p>
+</section>
+<section id="general-configuration">
+<span id="gen-config"></span><h2>General Configuration<a class="headerlink" href="#general-configuration" title="Permalink to this headline"></a></h2>
+<p>General configuration directives are stored in:guilabel:<cite>config.json</cite> file
+The file has the following directives:</p>
+<ul class="simple">
+<li><p><strong>data_dir</strong> root of your data dir see <a class="reference internal" href="../introduction.html#introduction"><span class="std std-ref">Multi model ensemble system</span></a></p></li>
+<li><p><strong>sources_file</strong> name of sources config file (default: <em>sources.json</em>)</p></li>
+<li><p><strong>ensemble_name</strong> name of the enemble yo’re going to create, this name will used for filenames</p></li>
+<li><p><strong>ensemble_variables</strong> a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file.</p></li>
+</ul>
+<p>Pleas note that the original variables of each forecast will be renamed following this order according to the</p>
+<dl class="simple">
+<dt>Default config.json::</dt><dd><p>{
+“data_dir”: “/usr3/iwsdata”,
+“sources_file”: “sources.json”,
+“ensemble_name”: “TMES”,
+“ensemble_variables”: {“sea_level”: [“sea_level”], “waves”: [“whs”, “wmp”, “wmd”]},
+“mask_file”: “{data_dir}/config/mask/TMES_mask_002_ext.nc”
+}</p>
+</dd>
+</dl>
+<p>The config value will be loaded <strong>recursively</strong> by loadconfig() function so in the file you can use previously declared values between curly brackets such as {data_dir} that will be replaced by the actual <strong>data_dir</strong> value.</p>
+<p id="proc-config">The processing steps for each model are defined in <span class="guilabel">processing.json</span> file.
+You can edit the file and add the model system name to tha step of your interest under each variable group</p>
+<p>[comment]: # TO DO change instructions when add procedure to manage.py</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CNR-ISMAR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

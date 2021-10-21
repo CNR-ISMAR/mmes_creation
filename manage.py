@@ -3,11 +3,10 @@ import json
 import os
 import sys
 # get sourcesfile from arguments
-if os.path.isfile(sys.argv[2]):
-    sourcesfile = sys.argv[2]\
-else:
-    #set it to default
-    sourcesfile = 'sources.json'
+sourcesfile = 'sources.json'
+if sys.argv[2:]:
+   if  os.path.isfile(sys.argv[2]):
+       sourcesfile = sys.argv[2]
 #template file
 templatefile = 'sources_template.json'
 configfile = 'config.json'
@@ -17,7 +16,7 @@ class Source:
     def __init__(self, fullname, name, srctype, url, ftp_dir, username, password, models):
         self.fullname = fullname
         self.name = name
-        self.srctype = srctype
+        self.type = srctype
         self.url = url
         self.ftp_dir = ftp_dir
         self.username = username
@@ -78,7 +77,7 @@ def modsource(srclist, new=False):
         if k == 'models':
             currentmodels = current[k]
             for m in currentmodels:
-                modmodel(m)
+                modmodel(current, m)
             # at the end check user input for new model
             prompt = 'Would you like to add a new model for source ' + current["fullname"] + '? [Y/N}'
             add = input(prompt)
@@ -119,13 +118,13 @@ def modmodel(source, model):
     for k in model.keys():
         while True:
             # ask for new values for each key
-            prompt = 'enter new value for model '+ k + '  (type ? for hint) :' + '[' + model[k] + ']'
+            prompt = 'enter new value for model '+ k + '  (press ? for hint) :' + '[' + model[k] + ']'
             r = input(prompt)
             if r == '?':
                 print(hints['models'][0][k])
                 continue
             else:
-                model[k] = input(prompt) or model[k]
+                model[k] = r or model[k]
                 break
 
 def saveandexit(srclist):

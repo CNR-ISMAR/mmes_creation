@@ -3,59 +3,60 @@
 import os, sys
 import  json
 from _datetime import datetime, timedelta
-from tmes_rotate import create_tmes, archive_tmes, prepare_forecast, prepare_grid
-from tmes_download import download_ftp, download_http, download_script
+from tmes_rotate import create_tmes, archive_tmes, prepare_forecast, write_grid
+from mmes_download import download_ftp, download_http, download_script
 from tmes_validate import check_time
 
 #load generl config from json
 Config = json.load(open(os.getcwd() + '/config.json'))
 sources_file = Config["sources_file"]
-#load sources from json TODO create objects not dictionaries
-Sources = json.load(open(os.getcwd() + '/' + sources_file))
-
+# general configuration
 iws_datadir = Config["data_dir"]
 current_dir = os.getcwd()
 tmpdir =  iws_datadir + '/tmp/'
 today = datetime.now().strftime("%Y%m%d")  # type: str
 #today = '20191223'
+#load sources from json TODO create objects not dictionaries
+sourcedict = json.load(open(os.getcwd() + '/' + sources_file))
+sources = sourcedict["sources"]
 if len(sys.argv) > 1:
     if isinstance(datetime.strptime(sys.argv[1], "%Y%m%d"), datetime):
         today = sys.argv[1]
-
 yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
+#TODO check if previous mmes exists and make recursive
 #show download progress (use only in debug mode otherwise logging will be verbose)
 progress=True
 
 #download ftp and http sources and process forecast
-for s in Sources["sources"]:
+for s in sources:
     #fix sources variables setted to currentdate
     if 'ftp_dir' in s.keys():
         if s['ftp_dir']=='currentdate':
             s['ftp_dir'] = today
     for m in s['models']:
         print(datetime.now().strftime("%Y%m%d %H:%M"))
-        print(' '.join((s['name'], m['system'], m['var'])))
+        print(' '.join((s['name'], m['system'], m['variable'])))
         #prepare filename based on source and model information
-        if 'source' in m.keys():
+        if m['source'] != '':
             src = m['source']
         else:
             src = s['name']
-        filename = os.path.join(iws_datadir, 'forecasts', s['name'],'_'.join([src, m['system'], m['var'], today]) + m['ext'])
+        filename = os.path.join(iws_datadir, 'forecasts', s['name'],'_'.join([src, m['system'], m['variable'], today]) + m['ext'])
         processed_dir = os.path.join(iws_datadir, 'mmes_components') # TODO parametrize model name
-        if s['type'] == 'login_ftp':
+        if s['srctype'] == 'login_ftp':
             download_ftp(s,m, tmpdir, filename, today)
-        elif s['type'] in ['http_server', 'http_login']:
+        elif s['srctype'] in ['http_server', 'http_login']:
             download_http(s, m, filename, today, progress)
-        elif s['type'] == 'script':
+        elif s['srctype'] == 'script':
             download_script(current_dir + '/scripts/', s, m, filename, today)
         if os.path.isfile(filename):
 	    #TODO enable validation for downloaded forecast
-            #valid = check_time(filename, today, 48)
-            valid = True
+            valid = check_time(filename, today, 48)
+            #valid = True
             if valid:
-                if m['var']=='waves':
+                if m['variable']=='waves':
                     print(filename)
-                prepare_forecast(s,m,filename, today, processed_dir, tmpdir)
+                prepare_forecast(s,m,filename, today)
             else:
                 print('invalid file downloaded - deleted')
                 os.remove(filename)

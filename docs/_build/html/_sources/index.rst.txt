@@ -11,6 +11,7 @@ Welcome to MMES documentation's documentation!
    :caption: Contents:
 
    introduction
+   configuration/index.rst
 
 
 Indices and tables
