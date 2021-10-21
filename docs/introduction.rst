@@ -14,13 +14,14 @@ To run the MMES software you need to provide
 * a list of sources sources.json: each source can provide one or more models for one or more variable
 * a mask file with the final grid you want to get
 * [optional] a wheights file for each model that needs to be spatially interpolated to fit the multi-model ansemble
-* a small amount of configuration information (directory in which all data will be available, variable to be considered ...)
+* a small amount of configuration information (directory in which all data will be available, variable to be considered ...) see [:ref:`gen_config`] section
 
 
+.. _dir_structure:
 
 Directory structure
 +++++++++++++++++++
-The application directory has python scripts and a subdirectori '''scripts''' with bash scripts used to download special sources or called by subprocess during program execution
+The application directory has python scripts and a subdirectory '''scripts''' with bash scripts used to download special sources or called by subprocess during program execution
 
 The data directory should have the following structure:
 
@@ -32,7 +33,6 @@ The data directory should have the following structure:
 | │   ├── SOURCE2
 | │   ├── SOURCE3
 | │   ├── ...
-| │   ├── TIDE
 | ├── mmes_components
 | │   ├── 20211001
 | │   ├── 20211002
@@ -43,4 +43,4 @@ The data directory should have the following structure:
 | │   ├── wheights
 | ├── tmp
 
-Inside MMES directory will be placed the daily ensemble produced and inside the MMES/history directory will be stored the old ensamble cuted to 24 hour
+Inside MMES directory will be placed the daily ensemble produced and inside the MMES/history directory will be stored the old ensamble cutted to first 24 hour

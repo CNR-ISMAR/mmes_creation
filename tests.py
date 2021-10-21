@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
-from tmes_rotate import create_tmes, archive_tmes
-from tmes_download import download_ftp, download_http
+from mmes_functions import create_tmes, archive_tmes
+from mmes_download import download_ftp, download_http
 
 
 #load sources from json

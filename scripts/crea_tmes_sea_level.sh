@@ -69,7 +69,7 @@ echo ${MODELS#,}
 cdo -O setreftime,2019-01-01,00:00:00,hours tmp.nc $tmesf
 ncatted -O -h -a source,global,o,c,"Ensemble generated from ${#files[@]} models: ${MODELS#,}" $tmesf
 #cdo expr,"uncertaintly=(std/${var})*100" MMES_${var}_${fdate}.nc)"
-# moved to python tmes_rotate.py
+# moved to python mmes_functions.py
 #cp $tmesf ${outputdir}/history/MMES_${var}_${fdate}.nc
 rm -f mean.nc std*.nc tmp.nc
 slcomment=$(cat ${scriptdir}/sealevel_list.txt)

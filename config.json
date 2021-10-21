@@ -1,5 +1,7 @@
 {
   "data_dir": "/usr3/iwsdata",
   "sources_file": "sources.json",
-  "ensemble_name": "TMES"
+  "ensemble_name": "TMES",
+  "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["whs", "wmp", "wmd"]},
+  "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc"
 }

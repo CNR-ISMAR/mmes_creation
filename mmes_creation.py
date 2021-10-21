@@ -3,9 +3,10 @@
 import os, sys
 import  json
 from _datetime import datetime, timedelta
-from tmes_rotate import create_tmes, archive_tmes, prepare_forecast, write_grid
+from mmes_functions import create_tmes, archive_tmes, prepare_forecast, write_grid
 from mmes_download import download_ftp, download_http, download_script
-from tmes_validate import check_time
+from mmes_validate import check_time
+from manage import readsources
 
 #load generl config from json
 Config = json.load(open(os.getcwd() + '/config.json'))
@@ -16,9 +17,8 @@ current_dir = os.getcwd()
 tmpdir =  iws_datadir + '/tmp/'
 today = datetime.now().strftime("%Y%m%d")  # type: str
 #today = '20191223'
-#load sources from json TODO create objects not dictionaries
-sourcedict = json.load(open(os.getcwd() + '/' + sources_file))
-sources = sourcedict["sources"]
+#load sources from json and convert in a dictionary
+sources = readsources   ()
 if len(sys.argv) > 1:
     if isinstance(datetime.strptime(sys.argv[1], "%Y%m%d"), datetime):
         today = sys.argv[1]
@@ -27,7 +27,7 @@ yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%
 #show download progress (use only in debug mode otherwise logging will be verbose)
 progress=True
 
-#download ftp and http sources and process forecast
+#download sources and process forecast TODO parallelize processing and star new download
 for s in sources:
     #fix sources variables setted to currentdate
     if 'ftp_dir' in s.keys():
@@ -50,13 +50,13 @@ for s in sources:
         elif s['srctype'] == 'script':
             download_script(current_dir + '/scripts/', s, m, filename, today)
         if os.path.isfile(filename):
-	    #TODO enable validation for downloaded forecast
             valid = check_time(filename, today, 48)
-            #valid = True
             if valid:
                 if m['variable']=='waves':
                     print(filename)
-                prepare_forecast(s,m,filename, today)
+                prepare_forecast_waves(s,m,filename, today)
+            elif m['variable'=='sea_level']:
+                prepare_forecast_sea_level(s,m,filename, today)
             else:
                 print('invalid file downloaded - deleted')
                 os.remove(filename)

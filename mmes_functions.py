@@ -7,7 +7,7 @@ from subprocess import run
 
 from cdo import Cdo
 # imports from local project
-from tmes_validate import check_time
+from mmes_validate import check_time
 from manage import loadconfig
 
 # MMES rotate script
@@ -22,7 +22,7 @@ ensemble_name = Config["ensemble_name"]
 data_dir = Config['data_dir']
 cdo = Cdo(tempdir=data_dir+'/tmp')
 
-def prepare_forecast(source, model, filename, filedate):
+def prepare_forecast_sea_level(source, model, filename, filedate):
     """
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -43,7 +43,7 @@ def prepare_forecast(source, model, filename, filedate):
     if os.path.isfile(processedfile):
         print('prepared file exists, skipping')
         return 0
-    elif model['variable'] == 'sea_level':
+    else:
         # define dates
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -144,6 +144,29 @@ def prepare_forecast(source, model, filename, filedate):
                 return
         # copy to destination
         cdo.copy(input=tempfile,output=processedfile)
+
+
+def preapae_forecast_waves(source, model, filename, filedate):
+    """
+    Just after downlading the forecast from provider's server prepare the forecast on the grid
+    :param source:
+    :param model:
+    :param filename:
+    :param filedate:
+    :return: 0 or error
+    """
+    proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.nc'
+    # change extension for tide model
+    if model['system'] == 'tide':
+        proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.tide'
+    outputdir = os.path.join(data_dir, 'mmes_components', filedate)
+    processedfile = os.path.join(outputdir, proc_filename)
+    # create otuput dir if not exists
+    if not os.path.isdir(outputdir):
+        os.mkdir(outputdir, 0o775)
+    if os.path.isfile(processedfile):
+        print('prepared file exists, skipping')
+        return 0
     else:
         # TODO port preparation in python
         current_dir = os.getcwd()
@@ -157,8 +180,6 @@ def prepare_forecast(source, model, filename, filedate):
             p = run(cmd_arguments, check=True)
         except ChildProcessError:
             print('preaparation failed')
-        pass
-
 
 def write_grid(maskfile, gridfile):
     cdo = Cdo()

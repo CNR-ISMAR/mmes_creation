@@ -1,46 +1,99 @@
 #!/usr/bin/env python3
 import json
 import os
+import re
 import sys
+import attr
 # get sourcesfile from arguments
 sourcesfile = 'sources.json'
 if sys.argv[2:]:
-   if  os.path.isfile(sys.argv[2]):
-       sourcesfile = sys.argv[2]
-#template file
+    if os.path.isfile(sys.argv[2]):
+        sourcesfile = sys.argv[2]
+# template file
 templatefile = 'sources_template.json'
 configfile = 'config.json'
 
 
-class Source:
-    def __init__(self, fullname, name, srctype, url, ftp_dir, username, password, models):
-        self.fullname = fullname
-        self.name = name
-        self.type = srctype
-        self.url = url
-        self.ftp_dir = ftp_dir
-        self.username = username
-        self.password = password
-        self.models = models
+@attr.s
+class Source(object):
+    # attributes
+    fullname = attr.ib(default='')
+    name = attr.ib(default='')
+    fullname = attr.ib(default='')
+    name = attr.ib(default='')
+    srctype = attr.ib(default='')
+    url = attr.ib(default='')
+    ftp_dir = attr.ib(default='')
+    username = attr.ib(default='')
+    password = attr.ib(default='')
+    models = attr.ib(default=[])
 
 
-class Model:
-    def __init__(self, source, system, name, meteo, var, filename, var_name='', ext=".nc", fact=0, add_tide=False):
-        self.source = source.name
-        self.system = system
-        self.name = name
-        self.meteo = meteo
-        self.var = var
-        self.var_name = var_name
-        self.ext = ext
-        self.fact = fact
-        self.add_tide = add_tide
-        self.filename = filename
+@attr.s
+class Model(object):
+    # attributes
+    source = attr.ib(default='')
+    system = attr.ib(default='')
+    engine = attr.ib(default='')
+    meteo_forcing = attr.ib(default='')
+    variable = attr.ib(default='')
+    var_names = attr.ib(default='')
+    miss_value = attr.ib(default='')
+    sea_level_add_tide = attr.ib(default='')
+    sea_level_fact = attr.ib(default='')
+    path = attr.ib(default='')
+    ext = attr.ib(default='')
+    filename = attr.ib(default='')
+    script = attr.ib(default='')
+    info = attr.ib(default='')
+
+
+def loadconfig(file=configfile):
+    """
+    Load config from file and recursively format parameters {}
+    You can declare data_dir and use {data_dir} in subsequent declarations
+    :param file: full path of config file
+    """
+    Config = json.load(open(file))
+    # format config itmes with template
+    for k,v in Config.items():
+        s = str(Config[k])
+        p = '{(\w+)}'
+        if re.match(p, s):
+            Config[k] = Config[k].format(**Config)
+
+    return  Config
+
+def checkdirs():
+    Config = loadconfig('config.json')
+    # check if default structure exists in data_dir
+    data_dir = Config['data_dir']
+    cur_dirs = os.listdir(data_dir)
+    def_dirs = ['config','config/mask', 'config/weights', 'forecasts', 'mmes_components', 'tmp', Config['ensemble_name'], Config['ensemble_name'] +'/history']
+    for d in def_dirs:
+        if not os.path.exists(data_dir + '/' + d):
+            prompt = 'would you like to create directory ' + data_dir + '/' + d +'?'
+            create = input(prompt)
+            if create[0:1] in ('Y', 'y', 'S', 's'):
+                os.makedirs(data_dir + '/' + d)
+                print('dir created')
 
 
 def readsources(filename):
-    sources = json.load(open(os.getcwd() + '/' + filename))['sources']
-    return sources
+    """
+    Load sources from json file and return a list of Source and Model objects
+    """
+    input_sources = json.load(open(os.getcwd() + '/' + filename))['sources']
+    obj_sources = []
+    for i in input_sources:
+        s = Source(**i)
+        obj_models = []
+        for m in s.models:
+            obj_models.append(Model(**m))
+        s.models = obj_models
+        obj_sources.append(s)
+
+    return obj_sources
 
 
 def modsource(srclist, new=False):
@@ -48,8 +101,8 @@ def modsource(srclist, new=False):
     if new:
         msg = 'Adding a new source to file ' + sourcesfile + '\n'
         print(line + msg + line)
-        new = Source("-", "-", "-", "-", "-", "-", "-", [])
-        srclist.append(new.__dict__)
+        new = Source()
+        srclist.append(new)
         # set current element to last added
         current = sourcelist[-1]
     else:
@@ -58,7 +111,7 @@ def modsource(srclist, new=False):
         print(line + msg + line)
         while True:
             for i in range(len(srclist)):
-                print(str(i) + ' ' + srclist[i]['name'] + ' (' + str(len(srclist[i]['models'])) + ' models)')
+                print(str(i) + ' ' + srclist[i].name + ' (' + str(len(srclist[i].models)) + ' models)')
             prompt = 'Which source would you modify? [enter number]'
             try:
                 n = int(input(prompt))
@@ -71,85 +124,93 @@ def modsource(srclist, new=False):
                 break
         # current source element from user input
         current = srclist[n]
+        msg = 'Editing ' + current.name
+        print(line + msg + '\n')
     # change every key of the source from use input
-    for k in current.keys():
+    for k in current.__dict__.keys():
         # different condition for key models
         if k == 'models':
-            currentmodels = current[k]
+            currentmodels = current.models
             for m in currentmodels:
+                msg = "Editing " + m.system + ' from ' + current.fullname + ' - model' + str(currentmodels.index(m)+1) + ' of ' + str(len(currentmodels))
+                print(line + msg + '\n')
                 modmodel(current, m)
-            # at the end check user input for new model
-            prompt = 'Would you like to add a new model for source ' + current["fullname"] + '? [Y/N}'
-            add = input(prompt)
-            # first adda a new empty model then modify values
-            if add[0:1] in ('Y', 'y', 'S', 's'):
-                print('Adding new model')
-                new = {"system": "--",
-                       "name": "--",
-                       "meteo": "--",
-                       "var": "--",
-                       "var_name": "--",
-                       "ext": "--",
-                       "filename": ""}
-                currentmodels.append(new)
-                modmodel(current, current['models'][-1])
-            elif add[0:1] in ('N','n','S','s'):
-                prompt = 'would you like to modify another source? [Y/N]'
-                rerun = input(prompt) or 'N'
-                if rerun[0:1] in ('Y', 'y', 'S', 's'):
-                    modsource(srclist)
+            while True:
+                # at the end check user input for new model
+                prompt = '\n Would you like to add a new model for source ' + current.fullname + '? [Y/N]'
+                add = input(prompt)
+                # first add a new empty model then modify values
+                if add[0:1] in ('Y', 'y', 'S', 's'):
+                    print('Adding new model')
+                    new = Model()
+                    currentmodels.append(new)
+                    modmodel(current, current.models[-1])
+                    break
+                elif add[0:1] in ('N','n'):
+                    prompt = 'would you like to modify another source? [Y/N]'
+                    rerun = input(prompt) or 'N'
+                    if rerun[0:1] in ('Y', 'y', 'S', 's'):
+                        modsource(srclist)
+                    else:
+                        saveandexit(srclist)
+                    break
                 else:
-                    saveandexit(srclist)
+                    msg = 'Please type Y or N'
+                    print(msg)
+                    continue
         else:
             while True:
                 # ask for new values for each key
-                prompt = 'enter new value for source ' + k + ' (type ? for hint) :' + '[' + current[k] + ']  '
-                r = input(prompt)
+                prompt = 'enter new value for source ' + k + ' (press ? for hint) :' + '[' + current.__dict__[k] + ']  '
+                r = input(prompt) or current.__dict__[k]
                 if r == '?':
-                    print(hints[k])
+                    print(hints.__dict__[k])
                     continue
                 else:
-                    current[k] = r or current[k]
+                    current.__dict__[k] = r
                     break
 
 
-
 def modmodel(source, model):
-    for k in model.keys():
+    for k in model.__dict__.keys():
         while True:
             # ask for new values for each key
-            prompt = 'enter new value for model '+ k + '  (press ? for hint) :' + '[' + model[k] + ']'
-            r = input(prompt)
+            prompt = 'enter new value for model '+ k + '  (press ? for hint) :' + '[' + model.__dict__[k] + ']'
+            r = input(prompt) or model.__dict__[k]
             if r == '?':
-                print(hints['models'][0][k])
+                print(hints.models[0].__dict__[k])
                 continue
             else:
-                model[k] = r or model[k]
+                model.__dict__[k] = r
                 break
+
+
+# default function to convert in dictionary all objects
+def obj_dict(obj):
+    return obj.__dict__
+
 
 def saveandexit(srclist):
     # create dictionary
     srcdict = {"sources": srclist}
     # create file
     with open(sourcesfile, 'w') as fp:
-        json.dump(srcdict, fp, indent=4)
-        fp.close()
+        json.dump(srcdict, fp, indent=4, default=obj_dict)
+    fp.close()
     print('file ' + sourcesfile +  ' saved')
 
 if __name__ == "__main__":
     # read sources from sources file
-    sourcelist = []
-    for s in readsources(sourcesfile):
-        sourcelist.append(s)
+    sourcelist = readsources(sourcesfile)
     # read sources template for hints
     hints = readsources(templatefile)[0]
-    # create dictionary
+    # create dictionary for outer json level
     sourcesdict = {"sources": sourcelist}
-    # create backup
+    # create backup file
     with open(sourcesfile + '.bak', 'w') as fp:
-        json.dump(sourcesdict, fp, indent=4)
-        fp.close()
-
+        json.dump(sourcesdict, fp, indent=4, default=obj_dict)
+    fp.close()
+    # check action required
     action = sys.argv[1]
     if action == 'add':
         modsource(sourcelist, True)
@@ -158,4 +219,7 @@ if __name__ == "__main__":
     if action == 'new':
         prompt = "type new filename for sources:"
         sourcesfile = os.path.splitext(input(prompt))[0] + '.json'
+        sourcelist = readsources(sourcesfile)
         modsource(sourcelist, True)
+    if action == 'dir':
+        checkdirs()
