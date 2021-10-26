@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import attr
+from subprocess import run
 # get sourcesfile from arguments
 sourcesfile = 'sources.json'
 if sys.argv[2:]:
@@ -77,6 +78,25 @@ def checkdirs():
             if create[0:1] in ('Y', 'y', 'S', 's'):
                 os.makedirs(data_dir + '/' + d)
                 print('dir created')
+
+def checkbin():
+    """
+    Check if erquired binary are available
+    """
+    # check cdo
+    try:
+        from cdo import Cdo
+        cdo = Cdo()
+    except FileNotFoundError:
+        msg = 'cdo binary not found'
+        print(msg)
+    # check nco
+    try:
+        cmd_arguments = ['ncap2', '-h']
+        p = run(cmd_arguments)
+    except FileNotFoundError:
+        msg = 'nco binary not found'
+        print(msg)
 
 
 def readsources(filename):
@@ -223,3 +243,5 @@ if __name__ == "__main__":
         modsource(sourcelist, True)
     if action == 'dir':
         checkdirs()
+    if action == 'bin':
+        chackbin()

@@ -1,8 +1,8 @@
 {
-  "data_dir": "/usr3/iwsdata",
+  "data_dir": "/home/amefad/mmes",
   "sources_file": "sources.json",
   "processing_fie": "processing.json",
-  "ensemble_name": "TMES",
+  "ensemble_name": "ADRIATIC",
   "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["whs", "wmp", "wmd"]},
   "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc"
 }

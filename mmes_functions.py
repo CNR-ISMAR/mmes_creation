@@ -56,7 +56,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         ms = model.system
         tempfile = filename
 
-        # step 1 preapare variables convert to NetCDF4 if file is .grib
+        # step 1 preapare variables convert to NetCDF if file is .grib
         if ms in steps['variable_selection']:
             varlist = model.var_names
             tempfile = cdo.selvar(varlist, input=tempfile, options="-f nc")
@@ -64,8 +64,8 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
             miss = model.miss_value
             if miss != '':
                 tempfile = cdo.setmissval(miss, input=tempfile)
-            # create dict with variable to rename
-            new_vars  = list(Config['ensemble_variables'][model.variable].split(','))
+            # create dictionaries with variable to rename
+            new_vars  = Config['ensemble_variables'][model.variable]
             old_vars = model.var_names.split(',')
             if len(new_vars) == len(old_vars):
                 rdict = dict(zip(old_vars,new_vars))
@@ -73,12 +73,13 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
                 for key, value in rdict.items():
                     cmd_arguments.append('-v')
                     cmd_arguments.append(key + ',' + value)
-                    # in place rename variables
-                    # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
-                    try:
-                        p = run(cmd_arguments)
-                    except Exception as e:
-                        print('error in rename variables: \n' + str(e))
+                # in place rename variables
+                # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
+                cmd_arguments.append(tempfile)
+                try:
+                    p = run(cmd_arguments)
+                except Exception as e:
+                    print('error in rename variables: \n' + str(e))
             else:
                 msg='Configuration error about var names of model ' + model.system
         # step 2 temporal interpolation

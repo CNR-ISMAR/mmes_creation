@@ -21,21 +21,24 @@ Define_dir() {
 # set username and password from arguments
   [ -n "$3" ] && user=$3
   [ -n "$4" ] && pass=$4
-  echo ${user}'/'${pass}
+#  echo ${user}'/'${pass}
 
-  iwsdir="/usr3/iwsdata"
-  tiddir="${iwsdir}/forecasts/TIDE"
-  locdir="${iwsdir}/forecasts/CMCC"
-  outdir="${iwsdir}/mmes_components/${date}"
-  bindir="${iwsdir}/bin"
-  tmpdir="${iwsdir}/tmp"
-  weidir="${bindir}/weights"
-  mask="${bindir}/TMES_mask_002.nc"
+#  iwsdir="/usr3/iwsdata"
+#  tiddir="${iwsdir}/forecasts/TIDE"
+#  locdir="${iwsdir}/forecasts/CMCC"
+#  outdir="${iwsdir}/mmes_components/${date}"
+#  bindir="${iwsdir}/bin"
+#  tmpdir="${iwsdir}/tmp"
+#  weidir="${bindir}/weights"
+#  mask="${bindir}/TMES_mask_002.nc"
   motu="python -m motuclient"
 
   wfile="med-hcmr-wav-an-fc-h"
 #  swfile="hcmr_wam_waves_${date}.nc"
   swfile=$2
+  locdir=`dirname "$swfile"`
+  logfile=$locdir/"cmems.log"
+
   # Region for the whole grid
   x1="12"
   x2="23"

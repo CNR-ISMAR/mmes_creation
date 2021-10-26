@@ -22,14 +22,14 @@ Define_dir() {
   [ -n "$4" ] && pass=$4
   echo ${user}'/'${pass}
 
-  iwsdir="/usr3/iwsdata"
-  tiddir="${iwsdir}/forecasts/TIDE" 
-  locdir="${iwsdir}/forecasts/CMCC"   
-  outdir="${iwsdir}/mmes_components/${date}"
-  bindir="${iwsdir}/bin"
-  tmpdir="${iwsdir}/tmp"
-  weidir="${bindir}/weights"
-  mask="${bindir}/TMES_mask_002.nc"
+#  iwsdir="/usr3/iwsdata"
+#  tiddir="${iwsdir}/forecasts/TIDE"
+#  locdir="${iwsdir}/forecasts/CMCC"
+#  outdir="${iwsdir}/mmes_components/${date}"
+#  bindir="${iwsdir}/bin"
+#  tmpdir="${iwsdir}/tmp"
+#  weidir="${bindir}/weights"
+#  mask="${bindir}/TMES_mask_002.nc"
   motu="python -m motuclient"
 
 
@@ -37,6 +37,7 @@ Define_dir() {
   lfile="med-cmcc-ssh-an-fc-hts"
   #slfile="cmcc_mfs_sea_level_${date}.nc"
   slfile=$2
+  locdir=`dirname "$slfile"`
   # Region for the whole grid
   x1="12"
   x2="23"

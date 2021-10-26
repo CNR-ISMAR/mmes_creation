@@ -8,11 +8,12 @@ Define_dir() {
 #--------------------------------------------------
   scriptdir=`dirname "$0"`
   var="waves"
-  tmesdir="/usr3/iwsdata"
-  bindir="${tmesdir}/bin"
+  datedir=`dirname "$1"`
+  outdir=`dirname "$datedir"`
+  echo $outdir
+  tmesdir=`dirname "$outdir"`
   orgdir="${tmesdir}/forecasts"
   tmpdir="${tmesdir}/tmp"
-  outdir="${tmesdir}/mmes_components"
   weidir="${tmesdir}/config/weights"
   mask="${tmesdir}/config/mask/TMES_mask_002_ext.nc"
   declare -Ag models=( ["KASSANDRA"]="shy"
@@ -486,7 +487,7 @@ Define_date $1
 #-------------------------------------------------------------
 # Define directory name
 #-------------------------------------------------------------
-Define_dir
+Define_dir $4
 
 #-------------------------------------------------------------
 # Define grid
