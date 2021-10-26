@@ -27,23 +27,23 @@ today = now.strftime("%Y%m%d")
 
 def download_ftp(source, model, tmpdir, filename, filedate=today):
     fileisodate = filedate[0:4] + '-' + filedate[4:6] + '-' + filedate[6:8]
-    remotefile = model['filename'].format(
+    remotefile = model.filename.format(
                                             currentdate=filedate,
                                             currentisodate=fileisodate,
-                                            ext=model['ext']
+                                            ext=model.ext
                                 )
     filedir = os.path.dirname(filename)
     if not os.path.isdir(filedir):
         os.mkdir(filedir, 0o0775)
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir, 0o0775)
-    with FTP(source['url']) as ftp:
+    with FTP(source.url) as ftp:
         try:
             # test connection
-            FTP(source['url'])
-            ftp.login(source['username'], source['password'])
+            FTP(source.url)
+            ftp.login(source.username, source.password)
         except:
-            print('could not connect to ' + source['url'])
+            print('could not connect to ' + source.url)
             return
         if os.path.isfile(filename):
             print('file ' + filename + '\n already exists skipping')
@@ -53,7 +53,7 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
                 os.mkdir(filedir, 0o0775)
             # remote dir change
             try:
-                ftp.cwd(source['ftp_dir'])
+                ftp.cwd(source.ftp_dir)
                 _list = ftp.nlst()
             except:
                 print('Remote Dir not found')
@@ -86,24 +86,24 @@ def download_http(source, model, filename, filedate=today, progress=False):
     :rtype: object
     """
 
-    if source['srctype'] == 'http_login':
-        template = model['filename']
+    if source.srctype == 'http_login':
+        template = model.filename
         fileisodate = filedate[0:4] + '-' + filedate[4:6] + '-' + filedate[6:8]
-        remotefile = model['filename'].format(
+        remotefile = model.filename.format(
                                               currentdate=filedate,
                                               currentisodate=fileisodate,
-                                              ext=model['ext']
+                                              ext=model.ext
                                               )
 
         # basic authentication
-        sourceauth = HTTPBasicAuth(source['username'], source['password'])
+        sourceauth = HTTPBasicAuth(source.username, source.password)
         if os.path.isfile(filename):
             print('file ' + filename + ' already exists skipping')
         else:
             filedir = os.path.dirname(filename)
             if not os.path.isdir(filedir):
                 os.mkdir(filedir, 0o0775)
-            fileurl = source['url'] + model['path'] + remotefile
+            fileurl = source.url + model.path + remotefile
             with requests.get(fileurl, auth=sourceauth, stream=True) as r:
                 total_length = r.headers.get('content-length')
                 if r.status_code == 200:
@@ -130,6 +130,6 @@ def download_script(scriptdir, source, model, filename, filedate, user="user", p
         filedir = os.path.dirname(filename)
         if not os.path.isdir(filedir):
             os.mkdir(filedir, 0o0775)
-        script = scriptdir + model['script']
-        cmd_arguments = [script, filedate, filename, source["username"], source["password"]]
+        script = scriptdir + model.script
+        cmd_arguments = [script, filedate, filename, source.username, source.password]
         p = run(cmd_arguments)

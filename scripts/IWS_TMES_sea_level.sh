@@ -15,7 +15,7 @@ Define_dir() {
   tmpdir="${tmesdir}/tmp"
   outdir="${tmesdir}/mmes_components"
   weidir="${tmesdir}/config/weights"
-  mask="${tmesdir}/config/mask/TMES_mask_002.nc"
+  mask="${tmesdir}/config/mask/TMES_mask_002_ext.nc"
   declare -Ag models=( ["KASSANDRA"]="shy"
 		       ["TIRESIAS"]="shy" 
 		       ["SHYMED"]="shy" 
