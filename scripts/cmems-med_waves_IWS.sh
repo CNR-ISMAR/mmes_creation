@@ -3,7 +3,7 @@
 # Script to get CMCC CMEMS files
 # Require motuclient python to download files from CMEMS database
 #   change permission: umask 022
-#   intall: python -m pip install motuclient 
+#   isntall: python -m pip install motuclient
 # set -x
 #--------------------------------------------------
 Define_dir() {
@@ -21,20 +21,12 @@ Define_dir() {
 # set username and password from arguments
   [ -n "$3" ] && user=$3
   [ -n "$4" ] && pass=$4
-#  echo ${user}'/'${pass}
-
-#  iwsdir="/usr3/iwsdata"
-#  tiddir="${iwsdir}/forecasts/TIDE"
-#  locdir="${iwsdir}/forecasts/CMCC"
-#  outdir="${iwsdir}/mmes_components/${date}"
-#  bindir="${iwsdir}/bin"
-#  tmpdir="${iwsdir}/tmp"
-#  weidir="${bindir}/weights"
-#  mask="${bindir}/TMES_mask_002.nc"
+# set command for motu client
   motu="python -m motuclient"
 
   wfile="med-hcmr-wav-an-fc-h"
 #  swfile="hcmr_wam_waves_${date}.nc"
+# filename passed invoking script as second argument
   swfile=$2
   locdir=`dirname "$swfile"`
   logfile=$locdir/"cmems.log"
