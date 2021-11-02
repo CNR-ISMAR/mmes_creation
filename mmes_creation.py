@@ -27,7 +27,7 @@ if len(sys.argv) > 1:
 yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
 #TODO check if previous mmes exists and make recursive
 #show download progress (use only in debug mode otherwise logging will be verbose)
-progress=True
+progress=False
 
 #download sources and process forecast TODO parallelize processing and start new download
 for s in sources:

@@ -50,7 +50,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         # create Cdo and nco objects and set tmp dir
-        cdo.debug = True
+        cdo.debug = False
         # load processing options
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['sea_level_prepare']

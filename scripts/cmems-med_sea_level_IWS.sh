@@ -20,7 +20,6 @@ Define_dir() {
 # set username and password from arguments
   [ -n "$3" ] && user=$3
   [ -n "$4" ] && pass=$4
-  echo ${user}'/'${pass}
 
 #  iwsdir="/usr3/iwsdata"
 #  tiddir="${iwsdir}/forecasts/TIDE"
