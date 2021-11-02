@@ -24,7 +24,7 @@ pickleshare==0.7.5
 prompt-toolkit==3.0.4
 ptyprocess==0.6.0
 pycparser==2.20
-Pygments==2.6.1
+Pygments==2.7.4
 python-crontab==2.4.0
 python-dateutil==2.8.1
 pytz==2019.3
@@ -33,7 +33,7 @@ scipy==1.4.1
 six==1.13.0
 sqlparse==0.3.0
 traitlets==4.3.3
-urllib3==1.25.3
+urllib3==1.26.5
 wcwidth==0.1.8
 xarray==0.15.0
 cdo==1.5.5
