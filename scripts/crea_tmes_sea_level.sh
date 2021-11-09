@@ -16,6 +16,7 @@ Define_dir() {
   var="sea_level"
   origdir="/usr3/iwsdata/mmes_components/${fdate}"
   outputdir="/usr3/iwsdata/MMES"
+  scriptdir=`dirname $0`
 	
   #model	s=(KASSANDRA MFS NETTUNO SIMM HENETUS COAWST1km SMMO SWANIT WWMHR)
 }

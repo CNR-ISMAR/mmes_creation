@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Script to manage configuration files for MMES creation
+# --------------------------------------------
+
+
+
 import json
 import os
 import re

@@ -34,18 +34,23 @@ The file has the following directives:
 * **data_dir** root of your data dir see :ref:`introduction`
 * **sources_file** name of sources config file (default: *sources.json*)
 * **ensemble_name** name of the enemble yo're going to create, this name will used for filenames
-* **ensemble_variables** a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file.
+* **ensemble_variables** a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file. Please note that the original variables of each forecast will be renamed following this order according to the processing.json file
+* **mask_file** name of final grid of ensemble, all value outside this mask will be set to nodata
+* **gap_days** max umber of days that will be attempted to be automatically gap-filled: check the output at least every n days
 
-Pleas note that the original variables of each forecast will be renamed following this order according to the
+
 
 Default config.json::
+
     {
     "data_dir": "/usr3/iwsdata",
     "sources_file": "sources.json",
     "ensemble_name": "TMES",
     "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["whs", "wmp", "wmd"]},
-    "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc"
+    "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc",
+    "gap_days":  "5"
     }
+
 
 The config value will be loaded **recursively** by loadconfig() function so in the file you can use previously declared values between curly brackets such as {data_dir} that will be replaced by the actual **data_dir** value.
 

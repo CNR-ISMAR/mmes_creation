@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta
-from mmes_functions import create_tmes, archive_tmes
+from mmes_functions import create_mmes, archive_tmes
 from mmes_download import download_ftp, download_http
 
 
@@ -11,7 +11,7 @@ today = datetime.now().strftime("%Y%m%d")  # type: str
 yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
 
 for q in ['sea_level', 'waves']:
-    p = create_tmes(iws_datadir, q, today)
+    p = create_mmes(iws_datadir, q, today)
     if p == 0:
         archive_tmes(iws_datadir, q, yesterday)
 

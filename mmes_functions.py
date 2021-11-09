@@ -3,6 +3,7 @@
 import json
 import os
 import re
+from shutil import copy2
 from datetime import datetime, timedelta
 from subprocess import run
 
@@ -72,8 +73,9 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
                 rdict = dict(zip(old_vars,new_vars))
                 cmd_arguments = ['ncrename']
                 for key, value in rdict.items():
-                    cmd_arguments.append('-v')
-                    cmd_arguments.append(key + ',' + value)
+                    if key != value: # exclude variables already named
+                        cmd_arguments.append('-v')
+                        cmd_arguments.append(key + ',' + value)
                 # in place rename variables
                 # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
                 cmd_arguments.append(tempfile)
@@ -90,7 +92,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
             tempfile = cdo.inttime(date,"00:00:00","1hour", input=tempfile)
         if ms  in steps['get_48hours']:
             # Get fields in the 00-23 time range
-            tempfile = cdo.seldate(date+"T00:00:00,"+date2+"T00:00:00", input=tempfile)
+            tempfile = cdo.seldate(date+"T00:00:00,"+date2+"T23:00:00", input=tempfile)
         if ms  in steps['add_factor']:
             # subtract factor to otranto bias
             var = model.variable
@@ -240,7 +242,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
         # step 3 get only first 48 hours
         if ms in steps['get_48hours']:
             # Get fields in the 00-23 time range
-            tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T00:00:00", input=tempfile)
+            tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
         # set grid to unstructured
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
@@ -286,41 +288,136 @@ def write_grid(maskfile, gridfile):
         fg.write("\n".join(map(str, content)))
 
 
-def create_tmes(iws_datadir, var, datestring):
-    """ launch the script for merging tmes components based on current variable
-     directories are hard coded in crea_tmes_sea_level.sh and crea_tmes_waves.sh
+def create_mmes(var, datestring):
+    """ merge tmes components based on current variable
+     directories are hard coded
     """
+    ensemble_name = Config['ensemble_name']
+    iws_datadir = Config['data_dir']
+    tmpdir = iws_datadir + '/tmp/'
+    filedir = os.path.join(iws_datadir, 'mmes_components', datestring)
     newtmes = os.path.join(iws_datadir, ensemble_name, ensemble_name + '_' + var + '_' + datestring + '.nc')
-
     if os.path.isfile(newtmes):
-        # raise FileExistsError
+        # TODO check if newtmes has new models before overwrite
         print("File " + newtmes + " already exists, overwriting")
-    # launch crea_tmes script
-    # TODO port this part in python
-    current_dir = os.getcwd()
-    script = current_dir + '/scripts/crea_tmes_' + var + '.sh'
-    cmd1_arguments = [script,  datestring, newtmes]
-    print(' '.join(cmd1_arguments))
-    p1 = run(cmd1_arguments, check=True)
-    if p1:
-        # copy MMES in history collection
-        tmesname = ensemble_name + '_' + var + '_' + datestring + '.nc'
-        linktmes = os.path.join(iws_datadir, ensemble_name, 'history', tmesname)
-        if os.path.exists(newtmes):
-            cmd2_arguments = ['cp', newtmes, linktmes]
-            p2 = run(cmd2_arguments, check=True)
-    return p1.returncode
 
+    # list all file for var and date - note that tide file has .tide extension not .nc
+    pattern = r'.+' + var + '.+' + datestring + '.+nc$'
+    files = [os.path.join(filedir, f) for f in os.listdir(filedir) if re.match(pattern, f)]
 
-def archive_tmes(iws_datadir, var, datestring):
+    # ---------------- Sea Level creation section ---------------
+    if var == 'sea_level':
+        # create mean
+        tempfile_mean = cdo.ensmean(input=files)
+        tempfile_mean = cdo.chname(var,var+'-mean', input=tempfile_mean)
+        # create stddev
+        tempfile_std = cdo.ensstd(input=files)
+        tempfile_std = cdo.chname(var,var+'-std', input=tempfile_std)
+        tempfile_std = cdo.settabnum(141,input=tempfile_std) # TODO check why mean doesn't have tabnum
+        # last merge
+        merged = cdo.merge(input=[tempfile_mean, tempfile_std])
+        cdo.setreftime('2019-01-01,00:00:00,hours', input=merged, output=newtmes)
+        # add global attribute ensamble description
+        ens_desc = get_models(files)
+        cmd_arguments = ['ncatted', '-O', '-h', '-a', 'source,global,o,c,"' + ens_desc + '"', newtmes]
+        try:
+            p = run(cmd_arguments)
+        except Exception as e:
+            print(e)
+
+    # ---------------- Waves creation section ---------------
+    elif var == 'waves':
+        #prepare temp files sh line 56-65
+        wshp_files=[]
+        wmd_files=[]
+        for f in files:
+            # calculate U end V components for each model
+            wmd = cdo.expr('"swmd=sin(rad(wmd));cwmd=cos(rad(wmd))"', input=f)
+            wmd_files.append(wmd)
+            wshp = cdo.expr('"wsh=wsh;wmp=wmp"', input=f)
+            wshp_files.append(wshp)
+        # create mean for wave direction sh line 69
+        tempfile_mean_wmd = cdo.ensmean(input=wmd_files, options='--sortname')
+        # create mean for wave period and height sh line 68
+        tempfile_mean_wshp = cdo.ensmean(input=wshp_files, options='--sortname')
+        # split waves mean direction into one files per var sh line 70-71
+        cwmd = cdo.expr('"cwmd=cwmd"', input=tempfile_mean_wmd)
+        swmd = cdo.expr('"swmd=swmd"', input=tempfile_mean_wmd)
+        tempfile_mean_wmd_dg = cdo.atan2(input=[swmd,cwmd])
+        tempfile_mean_wmd_dg = cdo.expr('"wmd_mean=deg(swmd)"', input=tempfile_mean_wmd_dg)
+        # change negative values sh line 75 (use cdo expr instead of ncap2)
+        tempfile_mean_wmd_dg = cdo.expr('"wmd_mean=(wmd_mean<0)?(wmd_mean + 360):(wmd_mean)"', input= tempfile_mean_wmd_dg)
+        cmd_arguments = ['ncrename', '-v', 'wmd_mean,wmd-mean', tempfile_mean_wmd_dg]
+        try:
+            p = run(cmd_arguments)
+        except Exception as e:
+            print(str(e))
+        cmd_arguments = ['ncrename', '-v', 'wsh,wsh-mean', '-v', 'wmp,wmp-mean', tempfile_mean_wshp]
+        try:
+            p = run(cmd_arguments)
+        except Exception as e:
+            print(str(e))
+        # merge mean sh line 79
+        merged_mean = cdo.merge(input=[tempfile_mean_wshp, tempfile_mean_wmd_dg])
+        # ensemble standard deviation
+        tempfile_std_wshp = cdo.ensstd(input=wshp_files, options='--sortname')
+        cmd_arguments = ['ncrename', '-v', 'wsh,wsh-std', '-v', 'wmp,wmp-std',  tempfile_std_wshp]
+        p = run(cmd_arguments)
+        # calculate std deviation from ensamble mean sh line 84
+        tempfile_std_wmd = cdo.expr('"wdstd=sqrt(1.-(swmd*swmd+cwmd*cwmd))"', input=tempfile_mean_wmd, options='-O')
+        tempfile_std_wmd = cdo.expr('"wmd_std=deg(asin(wdstd)*(1.+0.15470054*wdstd^3))"', input=tempfile_std_wmd, options='-O')
+        cmd_arguments = ['ncrename', '-v', 'wmd_std,wmd-std',  tempfile_std_wmd]
+        p = run(cmd_arguments)
+        merged_std = cdo.merge(input=[tempfile_std_wshp,tempfile_std_wmd])
+        merged = cdo.merge(input=[merged_mean,merged_std])
+        cdo.setreftime('2019-01-01,00:00:00,hours', input=merged, output=newtmes)
+        # add global attributes
+        # add global attribute ensamble description
+        ens_desc = get_models(files)
+        cmd_arguments = ['ncatted', '-O', '-h', '-a', 'source,global,o,c,"' + ens_desc + '"', newtmes]
+        try:
+            p = run(cmd_arguments)
+        except Exception as e:
+            print(e)
+
+        # add standard names
+        standard_names = {
+            "wsh-mean": "sea_surface_wave_significant_height",
+            "wsh-std": "sea_surface_wave_significant_height_stdev",
+            "wmp-mean": "sea_surface_wave_mean_period",
+            "wmp-std": "sea_surface_wave_mean_period_stdev",
+            "wmd-mean": "sea_surface_wave_from_direction",
+            "wmd-std": "sea_surface_wave_from_direction_stdev"
+        }
+        for key, value in standard_names.items():
+            cmd_arguments = ['ncatted','-O', '-a', 'standard_name,' + key + ',o,c,"' + value + '"', newtmes]
+            p = run(cmd_arguments)
+        pass
+    else:
+        msg = 'Unknown variable ' + var + '. Unable to create enesemble'
+    #clean temporary files
+    cdo.cleanTempDir()
+    # copy MMES in history collection
+    tmesname = os.path.basename(newtmes)
+    linktmes = os.path.join(iws_datadir, ensemble_name, 'history', tmesname)
+    copy2(newtmes,linktmes)
+    return 0
+
+def get_models(files):
+    # TODO generate source description with date and time of generation models to be used and effectively  used
+    # add global attribute about files
+    ens_desc = 'Ensemble generated from ' + str(len(files)) + ' models: \n'
+    for i in [os.path.basename(f).split('_') for f in files]:
+        # get source (0) and system (1) from filename TODO get this from sources object
+        ens_desc = ens_desc + i[1] + ' from ' + i[0] + ' \n'
+    return ens_desc
+
+def archive_tmes(var, datestring):
     """ Archive a subset of first 24 hours for old
     tmes files """
-    tmes_datadir = os.path.join(iws_datadir, ensemble_name)
+    tmes_datadir = os.path.join(data_dir, ensemble_name)
     # copy subset of old tmes(only 24 hour from forecast time)
     filename = ensemble_name + '_' + var + '_' + str(datestring) + '.nc'
-    if os.path.isfile(filename):
-        return "File " + filename + " not found exiting"
-        # TODO gap filling procedure
     today = (datetime.strptime(datestring, "%Y%m%d") + timedelta(days=1)).strftime("%Y%m%d")
     newfilename = ensemble_name + '_' + var + '_' + str(today) + '.nc'
     archivedir = 'history'
@@ -328,16 +425,27 @@ def archive_tmes(iws_datadir, var, datestring):
     filesrc =  os.path.join(tmes_datadir, filename)
     newfile =  os.path.join(tmes_datadir, newfilename)
     filedest = os.path.join(tmes_datadir, archivedir, filename)
-    # split first 24 times for history
-    cmd1_arguments = ['ncks', '-O', '-d', 'time,0,23', filesrc, filedest]
-    print(cmd1_arguments)
-    p1 = run(cmd1_arguments)
-    # check if tmes in history is valid
-    valid = check_time(filedest, datestring, 24)
-    # valid = True
-    if not valid and os.path.isfile(filedest):
-        os.remove(filedest)
-        return 'old tmes not valid removed'
+    if os.path.isfile(filesrc):
+        # split first 24 times for history
+        cmd1_arguments = ['ncks', '-O', '-d', 'time,0,23', filesrc, filedest]
+        print(' '.join(cmd1_arguments))
+        try:
+            p1 = run(cmd1_arguments)
+        except Exception as e:
+            print(str(e))
+    elif os.path.isfile(filedest):
+        # check if tmes in history is valid
+        valid = check_time(filedest, datestring, 24)
+        # valid = True
+        if not valid:
+            os.remove(filedest)
+            return 'old tmes not valid removed'
+    else:
+        msg = "File " + filename + " not found exiting"
+        print(msg)
+        return 1
+        # with return 1 gap filling procedure restart main with yesterday as argument
+        # and goes on until a valid old mmes is found in output dir or in history
     # check if new tmes is valid
     p2 = check_time(newfile, today, 48)
     if p2 and os.path.isfile(filesrc):

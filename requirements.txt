@@ -37,5 +37,4 @@ urllib3==1.26.5
 wcwidth==0.1.8
 xarray==0.15.0
 cdo==1.5.5
-nco==1.0.0
-netCDF4
+netcdf4
