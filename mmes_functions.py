@@ -304,7 +304,9 @@ def create_mmes(var, datestring):
     # list all file for var and date - note that tide file has .tide extension not .nc
     pattern = r'.+' + var + '.+' + datestring + '.+nc$'
     files = [os.path.join(filedir, f) for f in os.listdir(filedir) if re.match(pattern, f)]
-
+    # use at least 3 models TODO set in general config
+    if len(files)<3:
+        msg = 'Too few components. Found  ' + len(files) + 'files.'
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
         # create mean
@@ -395,6 +397,7 @@ def create_mmes(var, datestring):
         pass
     else:
         msg = 'Unknown variable ' + var + '. Unable to create enesemble'
+        print(msg)
     #clean temporary files
     cdo.cleanTempDir()
     # copy MMES in history collection
