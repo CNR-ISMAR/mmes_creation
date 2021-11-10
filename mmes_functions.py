@@ -304,9 +304,12 @@ def create_mmes(var, datestring):
     # list all file for var and date - note that tide file has .tide extension not .nc
     pattern = r'.+' + var + '.+' + datestring + '.+nc$'
     files = [os.path.join(filedir, f) for f in os.listdir(filedir) if re.match(pattern, f)]
-    # use at least 3 models TODO set in general config
-    if len(files)<3:
+    # check minimun number of components to use
+    min_components = Config['min_components']
+    if len(files)<int(min_components):
         msg = 'Too few components. Found  ' + str(len(files)) + 'files.'
+        print(msg)
+        return 0
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
         # create mean
