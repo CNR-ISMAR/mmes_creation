@@ -306,7 +306,7 @@ def create_mmes(var, datestring):
     files = [os.path.join(filedir, f) for f in os.listdir(filedir) if re.match(pattern, f)]
     # use at least 3 models TODO set in general config
     if len(files)<3:
-        msg = 'Too few components. Found  ' + len(files) + 'files.'
+        msg = 'Too few components. Found  ' + str(len(files)) + 'files.'
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
         # create mean
