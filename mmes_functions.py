@@ -452,4 +452,4 @@ def archive_tmes(var, datestring):
         # delete old file
         os.remove(filesrc)
     else:
-        return newfile + 'is not valid MMES'
+        return newfile + ' is not valid MMES'
