@@ -138,7 +138,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
             maskfile = Config['mask_file']
             tempfile = cdo.mul(input=[maskfile,tempfile], options='-O')
         # add tide
-        tide = None
+        tide = ''
         if ms in steps['add_tide']:
             files = os.listdir(outputdir)
             for f in files:
@@ -452,4 +452,4 @@ def archive_tmes(var, datestring):
         # delete old file
         os.remove(filesrc)
     else:
-        return newfile + ' is not valid MMES'
+        return newfile + 'is not valid MMES'
