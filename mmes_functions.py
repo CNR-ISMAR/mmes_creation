@@ -307,9 +307,9 @@ def create_mmes(var, datestring):
     # check minimun number of components to use
     min_components = Config['min_components']
     if len(files)<int(min_components):
-        msg = 'Too few components. Found  ' + str(len(files)) + 'files.'
+        msg = 'Too few components. Found  ' + str(len(files)) + ' files for ' + var
         print(msg)
-        return 0
+        return 1
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
         # create mean
