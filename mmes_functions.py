@@ -276,7 +276,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
             tempfile = cdo.mul(input=[maskfile,tempfile], options='-O')
         # step 7 removes value  equal 0
         if ms in steps['remove_zero_values']:
-            cdo.setctomiss(0, input=tempfile)
+            tempfile = cdo.setctomiss(0, input=tempfile)
         # copy to destination
         cdo.copy(input=tempfile,output=processedfile)
 
