@@ -21,6 +21,9 @@ def check_time(file, date_start, shape):
     # check if file exists
     if not os.path.isfile(file):
         return False
+    #check if file is empty
+    if os.stat(file).st_size == 0:
+        return False
     # calculate date_start and date end
     startdate = datetime.strptime(date_start, "%Y%m%d")
     enddate = startdate + timedelta(hours=int(shape)-1)
