@@ -25,7 +25,7 @@ source activate /path/to/new/virtual/environment/mmes/bin/activate
 ```
 pip install -r requirements.txt
 ```
-4. Prepare the data directory structure according to [documentation](https://cnr-ismar.github.io/mmes_creation/_build/html/index.html)
+4. Prepare the data directory structure according to [documentation](https://cnr-ismar.github.io/mmes/_build/html/index.html)
 5. Manually edit **config.json** according to your needs
 6. From the main directory launch
 ```
