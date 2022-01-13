@@ -108,7 +108,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
                      p = run(cmd_arguments)
                  except Exception as e:
                      print('error in mask with ncap2: \n' + str(e))
-        # spatial interpolatio
+        # spatial interpolation
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']
             gridfile = os.path.dirname(maskfile) + Config['ensemble_name'] + '_grid.txt'
