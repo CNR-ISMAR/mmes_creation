@@ -3,24 +3,6 @@
 Configuration files
 =====================
 
-.. _src_config:
-
-Suorce Configuration
-+++++++++++++++++++++
-
-Source list are stored by default in the :guilabel:`sources.json` file in the root directory, the filename can be customized in general config :guilabel:`config.json`
-
-Refer to :guilabel:`source_template.json` to create your own configuration file.
-
-If the ensemble creation for sea_level include models that need to add tide to express total sea level we suggest to put the tide source in the first place of config file.
-
-You can also run from command line:
-
-    ```
-    python manage.py new
-    ```
-
-This  will start a *step by step* procedure to create a new sources.json file. If something goes wrong you'll find a convenient backup of your last configuration on sources.json.bak
 
 
 .. _gen_config:
@@ -31,7 +13,7 @@ General Configuration
 General configuration directives are stored in:guilabel:`config.json` file
 The file has the following directives:
 
-* **data_dir** root of your data dir see :ref:`introduction`
+* **data_dir** root of your data dir see :ref:`dir_structure`
 * **sources_file** name of sources config file (default: *sources.json*)
 * **ensemble_name** name of the enemble yo're going to create, this name will used for filenames
 * **ensemble_variables** a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file. Please note that the original variables of each forecast will be renamed following this order according to the processing.json file
@@ -54,10 +36,46 @@ Default config.json::
 
 The config value will be loaded **recursively** by loadconfig() function so in the file you can use previously declared values between curly brackets such as {data_dir} that will be replaced by the actual **data_dir** value.
 
+
+.. _src_config:
+
+Suorce Configuration
++++++++++++++++++++++
+
+Source list are stored by default in the :guilabel:`sources.json` file in the root directory, the filename can be customized in general config :guilabel:`config.json`
+
+Refer to :guilabel:`source_template.json` to create your own configuration file.
+
+If the ensemble creation for sea_level include models that need to add tide to express total sea level we suggest to put the tide source in the first place of config file.
+
+You can also run from command line:
+
+    ```
+    python manage.py new
+    ```
+
+This  will start a *step by step* procedure to create a new sources.json file. If something goes wrong you'll find a convenient backup of your last configuration on sources.json.bak
+
+
 .. _proc_config:
+
+Processing steps Configuration
++++++++++++++++++++++++++++++++
 
 The processing steps for each model are defined in :guilabel:`processing.json` file.
 You can edit the file and add the model system name to tha step of your interest under each variable group
+
+The processing configuration file is composed by two section: :guilabel:`sea_level_prepare` and :guilabel:`waves_prepare`
+
+Sea level prepare
+-----------------
+
+**variable_selection**:
+this step allows to select only sea-level variables, if the source file has only sea-level you can skip this.
+
+
+Waves prepare
+-----------------
 
 [comment]: # TO DO change instructions when add procedure to manage.py
 
