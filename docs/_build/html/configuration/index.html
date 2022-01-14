@@ -118,15 +118,136 @@ The file has the following directives:</p>
 <span id="proc-config"></span><h2>Processing steps Configuration<a class="headerlink" href="#processing-steps-configuration" title="Permalink to this headline">¶</a></h2>
 <p>The processing steps for each model are defined in <span class="guilabel">processing.json</span> file.
 You can edit the file and add the model system name to tha step of your interest under each variable group</p>
-<p>The processing configuration file is composed by two section: <span class="guilabel">sea_level_prepare</span> and <span class="guilabel">waves_prepare</span></p>
+<p>The processing configuration file is composed by two section: <span class="guilabel">sea_level_prepare</span> and <span class="guilabel">waves_prepare</span>
+when modify or adding new models the manage.py script help to add (or remove) the current model to each step.</p>
 <div class="section" id="sea-level-prepare">
 <h3>Sea level prepare<a class="headerlink" href="#sea-level-prepare" title="Permalink to this headline">¶</a></h3>
-<p><strong>variable_selection</strong>:
-this step allows to select only sea-level variables, if the source file has only sea-level you can skip this.</p>
+<p>In this table are described the steps for sea level prepare</p>
+<table border="1" class="colwidths-auto docutils" id="id1">
+<caption><span class="caption-text">Processing steps sea level</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">JSON name</th>
+<th class="head">Description</th>
+<th class="head">Can be skipped if…</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>variable_selection</td>
+<td>Select only sea level variable</td>
+<td>source model has only sea level variable: original variable name is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a></td>
+</tr>
+<tr class="row-odd"><td>temporal_interpolation</td>
+<td>Temporal interpolation to match start, end and timesteps</td>
+<td>source model has exact timesteps of the ensemble</td>
+</tr>
+<tr class="row-even"><td>get_48hours</td>
+<td>Get first 48hours of forecast model</td>
+<td>source model is already 48hours long</td>
+</tr>
+<tr class="row-odd"><td>add_factor</td>
+<td>Add a specific  offset factor (setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>) for this model to match reference level</td>
+<td>the refernce level is the same  of ensemble</td>
+</tr>
+<tr class="row-even"><td>mask_before_interpolation</td>
+<td>Add a mask to some part of the model before interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</td>
+<td>All values of source model are suitable</td>
+</tr>
+<tr class="row-odd"><td>spatial_interpolation</td>
+<td>Interpolate to match same grid of the ensemble</td>
+<td>already match same grid of the ensemble</td>
+</tr>
+<tr class="row-even"><td>extrapolate_missing</td>
+<td>Extrapolate missing values</td>
+<td>No need to fill missing value in source model</td>
+</tr>
+<tr class="row-odd"><td>mask_after_interpolation</td>
+<td>Add a mask to some part of the model after interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</td>
+<td>All values of source model are suitable</td>
+</tr>
+<tr class="row-even"><td>mask_outside_area</td>
+<td>Mask value outside area of interest</td>
+<td>The extension of source model is the same of ensemble</td>
+</tr>
+<tr class="row-odd"><td>add_tide</td>
+<td>Add astronomical tide model  to source forecast model</td>
+<td>Forecast model already integrte tide.</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="waves-prepare">
 <h3>Waves prepare<a class="headerlink" href="#waves-prepare" title="Permalink to this headline">¶</a></h3>
-<p>[comment]: # TO DO change instructions when add procedure to manage.py</p>
+<table border="1" class="colwidths-auto docutils" id="id2">
+<caption><span class="caption-text">Processing steps waves</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">JSON name</th>
+<th class="head">Description</th>
+<th class="head">Can be skipped if…</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>merge_components</td>
+<td>Merge components</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>variable_selection</td>
+<td>Variable selection</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>invert_latitude</td>
+<td>Invert latitude</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>convert_freq_period</td>
+<td>Convert freq period</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>convert_waves_direction</td>
+<td>Convert waves direction</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>set_miss_value</td>
+<td>Set miss value</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>change_int_float</td>
+<td>Change int float</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>temporal_interpolation</td>
+<td>Temporal interpolation</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>get_48hours</td>
+<td>Get 48hours</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>set_grid_unstructured</td>
+<td>Set grid unstructured</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>spatial_interpolation</td>
+<td>Spatial interpolation</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>extrapolate_missing</td>
+<td>Extrapolate missing</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>mask_after_interpolation</td>
+<td>Mask after interpolation</td>
+<td>Step description</td>
+</tr>
+<tr class="row-odd"><td>mask_outside_area</td>
+<td>Mask outside area</td>
+<td>Step description</td>
+</tr>
+<tr class="row-even"><td>remove_zero_values</td>
+<td>Remove zero values</td>
+<td>Step description</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>

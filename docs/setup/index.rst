@@ -1,7 +1,7 @@
 Installation
 ============
 
-## 1. Create a python [virtualenv](https://docs.python.org/3/library/venv.html) and activate it.
+1. Create a python [virtualenv](https://docs.python.org/3/library/venv.html) and activate it.
 
     ```
     python3 -m venv /path/to/new/virtual/environment/mmes
@@ -31,11 +31,13 @@ Installation
 
 
 6. From the main directory launch
+
     ```
     python manage.py new
     ```
 
 to create a new source config file or
+
     ```
     python manage.py mod
     ```

@@ -66,16 +66,108 @@ The processing steps for each model are defined in :guilabel:`processing.json` f
 You can edit the file and add the model system name to tha step of your interest under each variable group
 
 The processing configuration file is composed by two section: :guilabel:`sea_level_prepare` and :guilabel:`waves_prepare`
+when modify or adding new models the manage.py script help to add (or remove) the current model to each step.
 
 Sea level prepare
 -----------------
 
-**variable_selection**:
-this step allows to select only sea-level variables, if the source file has only sea-level you can skip this.
+In this table are described the steps for sea level prepare
+
+..  list-table:: Processing steps sea level
+    :widths: auto
+    :header-rows: 1
+
+    * - JSON name
+      - Description
+      - Can be skipped if...
+    * - variable_selection
+      - Select only sea level variable
+      - source model has only sea level variable: original variable name is setted in :ref:`src_config`
+    * - temporal_interpolation
+      - Temporal interpolation to match start, end and timesteps
+      - source model has exact timesteps of the ensemble
+    * - get_48hours
+      - Get first 48hours of forecast model
+      - source model is already 48hours long
+    * - add_factor
+      - Add a specific  offset factor (setted in :ref:`src_config`) for this model to match reference level
+      - the refernce level is the same  of ensemble
+    * - mask_before_interpolation
+      - Add a mask to some part of the model before interpolation (values setted in :ref:`src_config`)
+      - All values of source model are suitable
+    * - spatial_interpolation
+      - Interpolate to match same grid of the ensemble
+      - already match same grid of the ensemble
+    * - extrapolate_missing
+      - Extrapolate missing values
+      - No need to fill missing value in source model
+    * - mask_after_interpolation
+      - Add a mask to some part of the model after interpolation (values setted in :ref:`src_config`)
+      - All values of source model are suitable
+    * - mask_outside_area
+      - Mask value outside area of interest
+      - The extension of source model is the same of ensemble
+    * - add_tide
+      - Add astronomical tide model  to source forecast model
+      - Forecast model already integrte tide.
 
 
 Waves prepare
 -----------------
 
-[comment]: # TO DO change instructions when add procedure to manage.py
+..  list-table:: Processing steps waves
+    :widths: auto
+    :header-rows: 1
+
+    * - JSON name
+      - Description
+      - Can be skipped if...
+    * - merge_components
+      - Merge components
+      - Step description
+    * - variable_selection
+      - Variable selection
+      - Step description
+    * - invert_latitude
+      - Invert latitude
+      - Step description
+    * - convert_freq_period
+      - Convert freq period
+      - Step description
+    * - convert_waves_direction
+      - Convert waves direction
+      - Step description
+    * - set_miss_value
+      - Set miss value
+      - Step description
+    * - change_int_float
+      - Change int float
+      - Step description
+    * - temporal_interpolation
+      - Temporal interpolation
+      - Step description
+    * - get_48hours
+      - Get 48hours
+      - Step description
+    * - set_grid_unstructured
+      - Set grid unstructured
+      - Step description
+    * - spatial_interpolation
+      - Spatial interpolation
+      - Step description
+    * - extrapolate_missing
+      - Extrapolate missing
+      - Step description
+    * - mask_after_interpolation
+      - Mask after interpolation
+      - Step description
+    * - mask_outside_area
+      - Mask outside area
+      - Step description
+    * - remove_zero_values
+      - Remove zero values
+      - Step description
+
+
+
 

@@ -15,9 +15,13 @@ sourcesfile = 'sources.json'
 if sys.argv[2:]:
     if os.path.isfile(sys.argv[2]):
         sourcesfile = sys.argv[2]
-# template file
+# source template file
 templatefile = 'sources_template.json'
+procfile = 'processing.json'
+if not os.path.isfile(procfile):
+    procfile = 'processing_template.json'
 configfile = 'config.json'
+
 
 
 @attr.s
@@ -208,7 +212,40 @@ def modmodel(source, model):
             else:
                 model.__dict__[k] = r
                 break
+    # ask for processing step
+    prompt = 'would you like to set processing step for this model? [Y/N]'
+    setproc = input(prompt) or 'N'
+    if setproc[0:1] in ('Y', 'y', 'S', 's'):
+        prep_steps(source, model)
 
+
+
+def prep_steps(source, model):
+    key = model.variable + '_prepare'
+    processing = json.load(open(procfile))
+    steps = processing[key]
+    processing.pop(key)
+    for k, v  in steps.items():
+        msg = 'current step for ' + model.variable + ' is ' + k
+        print(msg)
+        if model.system in steps[k]:
+            prompt = model.system + ' is present in ' + k + \
+                     '. Do you want to remove it? '
+            rmv = input(prompt)
+            if rmv[0:1] in ('Y', 'y', 'S', 's'):
+                steps[k].remove(model.system)
+        else:
+            prompt = model.system + ' is NOT present in ' + k + \
+                     '. Do you want to add it? '
+            apn = input(prompt)
+            if apn[0:1] in ('Y', 'y', 'S', 's'):
+                steps[k].append(model.system)
+    # add modified steps to dictionary
+    processing[key] = steps
+    # save json file
+    with open(procfile, 'w') as fp:
+        json.dump(processing, fp, indent=4, default=obj_dict)
+    fp.close()
 
 # default function to convert in dictionary all objects
 def obj_dict(obj):
@@ -249,4 +286,4 @@ if __name__ == "__main__":
     if action == 'dir':
         checkdirs()
     if action == 'bin':
-        chackbin()
+        checkbin()
