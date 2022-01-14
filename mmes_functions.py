@@ -239,15 +239,18 @@ def prepare_forecast_waves(source, model, filename, filedate):
             # set time axis (already setted for most models
             tempfile = cdo.settaxis(date, "00:00:00", "1hour", input=tempfile)
             tempfile = cdo.inttime(date, "00:00:00", "1hour", input=tempfile)
-        # step 3 get only first 48 hours
+        # step 3 invert lat
+        if ms in steps['invert_latitude']:
+            tempfile = cdo.invertlat(input=tempfile)
+        # step 4 get only first 48 hours
         if ms in steps['get_48hours']:
             # Get fields in the 00-23 time range
             tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
-        # set grid to unstructured
+        # step 5 set grid to unstructured
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
             tempfile = cdo.setgrid(us_gridfile, input=tempfile)
-        # step 4 spatial interpolatio
+        # step 6 spatial interpolatio
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']
             int_gridfile = os.path.dirname(maskfile) + '/' + Config['ensemble_name'] + '_grid.txt'

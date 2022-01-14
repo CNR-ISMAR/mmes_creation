@@ -123,22 +123,16 @@ Waves prepare
       - Description
       - Can be skipped if...
     * - merge_components
-      - Merge components
-      - Step description
+      - Merge multiple files from the source forecast to have allthe waves variables (Wave Significant Height, Wave period and Wave direction) in the same file.
+      - Source forecast model already have the three variables in the same file.
     * - variable_selection
-      - Variable selection
-      - Step description
+      - Select from source file only the three variables about waves (variable names setted in :ref:`src_config`) and rename them according to :gui_label:`ensemble_variables` in :gui_label:`config.json`.
+      - The source file has only the variables about waves and
     * - invert_latitude
-      - Invert latitude
-      - Step description
-    * - convert_freq_period
-      - Convert freq period
-      - Step description
-    * - convert_waves_direction
-      - Convert waves direction
-      - Step description
+      - Invert latitude direction usng ```cdo invertlat``` command
+      - The latitude is already coherent with the ensemble
     * - set_miss_value
-      - Set miss value
+      - Fill missing value with ```cdo setmissval```
       - Step description
     * - change_int_float
       - Change int float
@@ -156,7 +150,7 @@ Waves prepare
       - Spatial interpolation
       - Step description
     * - extrapolate_missing
-      - Extrapolate missing
+      - Extrapolate missing value with ```cdo fillmiss```
       - Step description
     * - mask_after_interpolation
       - Mask after interpolation
