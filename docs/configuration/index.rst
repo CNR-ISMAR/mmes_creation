@@ -126,7 +126,7 @@ Waves prepare
       - Merge multiple files from the source forecast to have allthe waves variables (Wave Significant Height, Wave period and Wave direction) in the same file.
       - Source forecast model already have the three variables in the same file.
     * - variable_selection
-      - Select from source file only the three variables about waves (variable names setted in :ref:`src_config`) and rename them according to :gui_label:`ensemble_variables` in :gui_label:`config.json`.
+      - Select from source file only the three variables about waves (variable names setted in :ref:`src_config`) and rename them according to :guilabel:`ensemble_variables` in :guilabel:`config.json`.
       - The source file has only the variables about waves and
     * - invert_latitude
       - Invert latitude direction usng ```cdo invertlat``` command

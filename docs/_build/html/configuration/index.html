@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html4" lang="en" >
 <head>
@@ -5,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuration files &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/style.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -187,27 +190,19 @@ when modify or adding new models the manage.py script help to add (or remove) th
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>merge_components</td>
-<td>Merge components</td>
-<td>Step description</td>
+<td>Merge multiple files from the source forecast to have allthe waves variables (Wave Significant Height, Wave period and Wave direction) in the same file.</td>
+<td>Source forecast model already have the three variables in the same file.</td>
 </tr>
 <tr class="row-odd"><td>variable_selection</td>
-<td>Variable selection</td>
-<td>Step description</td>
+<td>Select from source file only the three variables about waves (variable names setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>) and rename them according to <span class="guilabel">ensemble_variables</span> in <span class="guilabel">config.json</span>.</td>
+<td>The source file has only the variables about waves and</td>
 </tr>
 <tr class="row-even"><td>invert_latitude</td>
-<td>Invert latitude</td>
-<td>Step description</td>
-</tr>
-<tr class="row-odd"><td>convert_freq_period</td>
-<td>Convert freq period</td>
-<td>Step description</td>
-</tr>
-<tr class="row-even"><td>convert_waves_direction</td>
-<td>Convert waves direction</td>
-<td>Step description</td>
+<td>Invert latitude direction usng <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">invertlat`</span></code> command</td>
+<td>The latitude is already coherent with the ensemble</td>
 </tr>
 <tr class="row-odd"><td>set_miss_value</td>
-<td>Set miss value</td>
+<td>Fill missing value with <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">setmissval`</span></code></td>
 <td>Step description</td>
 </tr>
 <tr class="row-even"><td>change_int_float</td>
@@ -231,7 +226,7 @@ when modify or adding new models the manage.py script help to add (or remove) th
 <td>Step description</td>
 </tr>
 <tr class="row-odd"><td>extrapolate_missing</td>
-<td>Extrapolate missing</td>
+<td>Extrapolate missing value with <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">fillmiss`</span></code></td>
 <td>Step description</td>
 </tr>
 <tr class="row-even"><td>mask_after_interpolation</td>
