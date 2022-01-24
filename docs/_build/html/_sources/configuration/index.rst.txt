@@ -90,8 +90,8 @@ In this table are described the steps for sea level prepare
       - Get first 48hours of forecast model
       - source model is already 48hours long
     * - add_factor
-      - Add a specific  offset factor (setted in :ref:`src_config`) for this model to match reference level
-      - the refernce level is the same  of ensemble
+      - Add a specific  offset factor (setted in :ref:`src_config` as ``sea_level_fact``) for this model to match reference level
+      - the reference level is the same  of ensemble
     * - mask_before_interpolation
       - Add a mask to some part of the model before interpolation (values setted in :ref:`src_config`)
       - All values of source model are suitable
@@ -129,17 +129,17 @@ Waves prepare
       - Select from source file only the three variables about waves (variable names setted in :ref:`src_config`) and rename them according to :guilabel:`ensemble_variables` in :guilabel:`config.json`.
       - The source file has only the variables about waves and
     * - invert_latitude
-      - Invert latitude direction usng ```cdo invertlat``` command
+      - Invert latitude direction usng ``cdo invertlat`` command
       - The latitude is already coherent with the ensemble
     * - set_miss_value
-      - Fill missing value with ```cdo setmissval```
-      - Step description
+      - Fill missing value with ``cdo setmissval`` . Missing value is setted in :ref:`src_config` (``miss_value``)
+      - The source forecast
     * - change_int_float
-      - Change int float
-      - Step description
+      - Change data type of variables integer  float
+      - Data type for all variables are already float
     * - temporal_interpolation
-      - Temporal interpolation
-      - Step description
+      - Temporal interpolation to match start, end and timesteps
+      - source model has exact timesteps of the ensemble
     * - get_48hours
       - Get 48hours
       - Step description

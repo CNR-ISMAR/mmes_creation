@@ -250,7 +250,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
             tempfile = cdo.setgrid(us_gridfile, input=tempfile)
-        # step 6 spatial interpolatio
+        # step 6 spatial interpolation
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']
             int_gridfile = os.path.dirname(maskfile) + '/' + Config['ensemble_name'] + '_grid.txt'

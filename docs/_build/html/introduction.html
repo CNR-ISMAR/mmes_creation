@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Introduction &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/style.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -79,6 +79,7 @@
 2. process each forecast with appropriate operations;
 3. create the ensemble with mean value and estimate error as standard deviation value and archive old ensemble.
 At the present stage, the download and processing tasks are executed in sequence for each source and the cycle is repeated at specified intervals, including new available resources. The choice of Python scripts instead of bash shells procedure allows to execute more than one task in parallel shortening the time of the whole cycle. The software is capable of downloading data from ftp or http/https servers using credentials stored in the configuration files or using a custom command to be executed on the system shell. The software can retrieve virtually any kind of source.</p>
+<p>For more infromation on the ensemble process see</p>
 </div>
 
 

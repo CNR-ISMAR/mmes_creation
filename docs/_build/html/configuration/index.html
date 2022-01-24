@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuration files &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -148,8 +148,8 @@ when modify or adding new models the manage.py script help to add (or remove) th
 <td>source model is already 48hours long</td>
 </tr>
 <tr class="row-odd"><td>add_factor</td>
-<td>Add a specific  offset factor (setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>) for this model to match reference level</td>
-<td>the refernce level is the same  of ensemble</td>
+<td>Add a specific  offset factor (setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> as <code class="docutils literal notranslate"><span class="pre">sea_level_fact</span></code>) for this model to match reference level</td>
+<td>the reference level is the same  of ensemble</td>
 </tr>
 <tr class="row-even"><td>mask_before_interpolation</td>
 <td>Add a mask to some part of the model before interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</td>
@@ -198,20 +198,20 @@ when modify or adding new models the manage.py script help to add (or remove) th
 <td>The source file has only the variables about waves and</td>
 </tr>
 <tr class="row-even"><td>invert_latitude</td>
-<td>Invert latitude direction usng <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">invertlat`</span></code> command</td>
+<td>Invert latitude direction usng <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">invertlat</span></code> command</td>
 <td>The latitude is already coherent with the ensemble</td>
 </tr>
 <tr class="row-odd"><td>set_miss_value</td>
-<td>Fill missing value with <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">setmissval`</span></code></td>
-<td>Step description</td>
+<td>Fill missing value with <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">setmissval</span></code> . Missing value is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> (<code class="docutils literal notranslate"><span class="pre">miss_value</span></code>)</td>
+<td>The source forecast</td>
 </tr>
 <tr class="row-even"><td>change_int_float</td>
-<td>Change int float</td>
-<td>Step description</td>
+<td>Change data type of variables integer  float</td>
+<td>Data type for all variables are already float</td>
 </tr>
 <tr class="row-odd"><td>temporal_interpolation</td>
-<td>Temporal interpolation</td>
-<td>Step description</td>
+<td>Temporal interpolation to match start, end and timesteps</td>
+<td>source model has exact timesteps of the ensemble</td>
 </tr>
 <tr class="row-even"><td>get_48hours</td>
 <td>Get 48hours</td>
