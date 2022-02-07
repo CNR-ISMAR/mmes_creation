@@ -1,21 +1,23 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>Introduction &mdash; MMES 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +40,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="howitworks/index.html">Software description</a></li>
@@ -70,17 +72,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="introduction">
-<span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+  <section id="introduction">
+<span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h1>
 <p>Multi model ensemble system (MMES)</p>
 <p>This software is intended to collect daily oceanographic forecasts from different sources and create a Multi-model Ensemble. The software is specifically designed to publish NetCDF files about sea-level and waves, but can be configured to manage other variables.</p>
+<blockquote>
+<div><figure class="align-default">
+<img alt="_images/multi-model.png" src="_images/multi-model.png" />
+</figure>
+</div></blockquote>
 <p>Ocean forecast results are collected by the system every day in the morning: the program contacts each provider of the list, checks if an updated model exists, downloads it and stores it on a local filesystem using one folder for each node with current and historical data. If the updated forecast is not present in the node, the system will pass to the next node and retry later. Once all forecasts available are downloaded, the multi-model builder prepares the data harmonizing all different forecasts. The ensemble creation procedure can be three main task:
 1. retrieve and download each single forecast file provided from different sources;
 2. process each forecast with appropriate operations;
 3. create the ensemble with mean value and estimate error as standard deviation value and archive old ensemble.
 At the present stage, the download and processing tasks are executed in sequence for each source and the cycle is repeated at specified intervals, including new available resources. The choice of Python scripts instead of bash shells procedure allows to execute more than one task in parallel shortening the time of the whole cycle. The software is capable of downloading data from ftp or http/https servers using credentials stored in the configuration files or using a custom command to be executed on the system shell. The software can retrieve virtually any kind of source.</p>
-<p>For more infromation on the ensemble process see</p>
-</div>
+<p>For more information on the ensemble process see:</p>
+<p>Ferrarin, C., Valentini, A., Vodopivec, M., Klaric, D., Massaro, G., Bajo, M., De Pascalis, F., Fadini, A., Ghezzo, M., Menegon, S., Bressan, L., Unguendoli, S., Fettich, A., Jerman, J., Ličer, M., Fustar, L., Papa, A., and Carraro, E.:
+Integrated sea storm management strategy: the 29 October 2018 event in the Adriatic Sea, Nat. Hazards Earth Syst. Sci., 20, 73–93, <a class="reference external" href="https://doi.org/10.5194/nhess-20-73-2020">doi: 10.5194/nhess-20-73-2020, 2020</a>.</p>
+</section>
 
 
            </div>

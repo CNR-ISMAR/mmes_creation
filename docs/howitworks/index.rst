@@ -55,6 +55,7 @@ If not already presente the directory structure is automatically created by the 
 +++++++++++++++++++++++++++++++
 
    .. figure:: ../img/MMES_download.png
+        :align: center
 
 The source forecasts are provided in different formats and from different types of sources (ftp or http or other). The diagram of the download stage of MMES software is shown in Figure 1. The Daily forecasts are usually published in the morning, but they are not available at the same time and therefore the software contacts all source nodes at regular intervals and checks if the current file is available. If the file is already downloaded and processed the software will pass to the next node.
 For http sources the exact path of the file to download is needed, for ftp sources the software needs the directory name and filename. The naming schema of the files is different for each provider but usually can be constructed using a constant pattern and current date value.
@@ -64,6 +65,7 @@ If the download process is interrupted due to network issues or other causes, th
 2. Processing phase
 ++++++++++++++++++++
     .. figure:: ../img/MMES_processing.png
+        :align: center
 
 If the file is valid, the software will pass to the processing phase. The diagram of the processing stage of MMES software is shown in Figure 2. Each forecast has to be processed in a different way: all the possible steps are implemented in the code (e.g. merge or split variables, rename variables, spatial interpolation on the final grid, temporal interpolation, add tide and offset for sea level, invert wave direction and so on). The processing steps and relative parameters required for each forecast are declared in the configuration files as a JSON object.
 On each step, a temporary output file is created: the Python cdo wrapper library manages temporary filenames and makes available the data as a Python variable, then clears all temporary files at the end. Then the result is saved as a NetCDF file inside the component’s directory. At the end of each processing cycle, the software goes to the ensemble creation phase.
@@ -73,6 +75,8 @@ The configuration of different processing steps for each variable is the most im
 ++++++++++++++++++++++++++
 
     .. figure:: ../img/MMES_creation.png
+        :align: center
+        :scale: 80%
 
 The general configuration sets a minimum number of files for the ensemble creation: the ensemble output is overwritten on the next cycles adding more forecasts, when available (last execution is scheduled at 14.00). The diagram of the ensemble precaution stage of MMES software is shown in Figure 3.
 All numerical model results are interpolated, through a distance-weighted average remapping of the nearest neighbours, on a common regular lat-lon grid covering the Adriatic Sea with a resolution of 0.02 deg.

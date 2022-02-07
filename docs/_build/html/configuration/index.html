@@ -1,21 +1,23 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Configuration files &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Configuration files &mdash; MMES 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -37,7 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../howitworks/index.html">Software description</a></li>
@@ -78,19 +80,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="configuration-files">
-<span id="configuration"></span><h1>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="general-configuration">
-<span id="gen-config"></span><h2>General Configuration<a class="headerlink" href="#general-configuration" title="Permalink to this headline">¶</a></h2>
+  <section id="configuration-files">
+<span id="configuration"></span><h1>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline"></a></h1>
+<section id="general-configuration">
+<span id="gen-config"></span><h2>General Configuration<a class="headerlink" href="#general-configuration" title="Permalink to this headline"></a></h2>
 <p>General configuration directives are stored in:guilabel:<cite>config.json</cite> file
 The file has the following directives:</p>
 <ul class="simple">
-<li><strong>data_dir</strong> root of your data dir see <a class="reference internal" href="../howitworks/index.html#dir-structure"><span class="std std-ref">Directory structure</span></a></li>
-<li><strong>sources_file</strong> name of sources config file (default: <em>sources.json</em>)</li>
-<li><strong>ensemble_name</strong> name of the enemble yo’re going to create, this name will used for filenames</li>
-<li><strong>ensemble_variables</strong> a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file. Please note that the original variables of each forecast will be renamed following this order according to the processing.json file</li>
-<li><strong>mask_file</strong> name of final grid of ensemble, all value outside this mask will be set to nodata</li>
-<li><strong>gap_days</strong> max umber of days that will be attempted to be automatically gap-filled: check the output at least every n days</li>
+<li><p><strong>data_dir</strong> root of your data dir see <a class="reference internal" href="../howitworks/index.html#dir-structure"><span class="std std-ref">Directory structure</span></a></p></li>
+<li><p><strong>sources_file</strong> name of sources config file (default: <em>sources.json</em>)</p></li>
+<li><p><strong>ensemble_name</strong> name of the enemble yo’re going to create, this name will used for filenames</p></li>
+<li><p><strong>ensemble_variables</strong> a JSON objects with the variable of each ensemble file (will be used in filename) and the related array for variable names in the final NetCDF file. Please note that the original variables of each forecast will be renamed following this order according to the processing.json file</p></li>
+<li><p><strong>mask_file</strong> name of final grid of ensemble, all value outside this mask will be set to nodata</p></li>
+<li><p><strong>gap_days</strong> max umber of days that will be attempted to be automatically gap-filled: check the output at least every n days</p></li>
 </ul>
 <p>Default config.json:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -104,148 +106,149 @@ The file has the following directives:</p>
 </pre></div>
 </div>
 <p>The config value will be loaded <strong>recursively</strong> by loadconfig() function so in the file you can use previously declared values between curly brackets such as {data_dir} that will be replaced by the actual <strong>data_dir</strong> value.</p>
-</div>
-<div class="section" id="suorce-configuration">
-<span id="src-config"></span><h2>Suorce Configuration<a class="headerlink" href="#suorce-configuration" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="suorce-configuration">
+<span id="src-config"></span><h2>Suorce Configuration<a class="headerlink" href="#suorce-configuration" title="Permalink to this headline"></a></h2>
 <p>Source list are stored by default in the <span class="guilabel">sources.json</span> file in the root directory, the filename can be customized in general config <span class="guilabel">config.json</span></p>
 <p>Refer to <span class="guilabel">source_template.json</span> to create your own configuration file.</p>
 <p>If the ensemble creation for sea_level include models that need to add tide to express total sea level we suggest to put the tide source in the first place of config file.</p>
 <p>You can also run from command line:</p>
 <blockquote>
-<div><code class="docutils literal notranslate"><span class="pre">`</span>
+<div><p><code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">new</span>
-<span class="pre">`</span></code></div></blockquote>
+<span class="pre">`</span></code></p>
+</div></blockquote>
 <p>This  will start a <em>step by step</em> procedure to create a new sources.json file. If something goes wrong you’ll find a convenient backup of your last configuration on sources.json.bak</p>
-</div>
-<div class="section" id="processing-steps-configuration">
-<span id="proc-config"></span><h2>Processing steps Configuration<a class="headerlink" href="#processing-steps-configuration" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="processing-steps-configuration">
+<span id="proc-config"></span><h2>Processing steps Configuration<a class="headerlink" href="#processing-steps-configuration" title="Permalink to this headline"></a></h2>
 <p>The processing steps for each model are defined in <span class="guilabel">processing.json</span> file.
 You can edit the file and add the model system name to tha step of your interest under each variable group</p>
 <p>The processing configuration file is composed by two section: <span class="guilabel">sea_level_prepare</span> and <span class="guilabel">waves_prepare</span>
 when modify or adding new models the manage.py script help to add (or remove) the current model to each step.</p>
-<div class="section" id="sea-level-prepare">
-<h3>Sea level prepare<a class="headerlink" href="#sea-level-prepare" title="Permalink to this headline">¶</a></h3>
+<section id="sea-level-prepare">
+<h3>Sea level prepare<a class="headerlink" href="#sea-level-prepare" title="Permalink to this headline"></a></h3>
 <p>In this table are described the steps for sea level prepare</p>
-<table border="1" class="colwidths-auto docutils" id="id1">
-<caption><span class="caption-text">Processing steps sea level</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">JSON name</th>
-<th class="head">Description</th>
-<th class="head">Can be skipped if…</th>
+<table class="colwidths-auto docutils align-default" id="id1">
+<caption><span class="caption-text">Processing steps sea level</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>JSON name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Can be skipped if…</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>variable_selection</td>
-<td>Select only sea level variable</td>
-<td>source model has only sea level variable: original variable name is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a></td>
+<tbody>
+<tr class="row-even"><td><p>variable_selection</p></td>
+<td><p>Select only sea level variable</p></td>
+<td><p>source model has only sea level variable: original variable name is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>temporal_interpolation</td>
-<td>Temporal interpolation to match start, end and timesteps</td>
-<td>source model has exact timesteps of the ensemble</td>
+<tr class="row-odd"><td><p>temporal_interpolation</p></td>
+<td><p>Temporal interpolation to match start, end and timesteps</p></td>
+<td><p>source model has exact timesteps of the ensemble</p></td>
 </tr>
-<tr class="row-even"><td>get_48hours</td>
-<td>Get first 48hours of forecast model</td>
-<td>source model is already 48hours long</td>
+<tr class="row-even"><td><p>get_48hours</p></td>
+<td><p>Get first 48hours of forecast model</p></td>
+<td><p>source model is already 48hours long</p></td>
 </tr>
-<tr class="row-odd"><td>add_factor</td>
-<td>Add a specific  offset factor (setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> as <code class="docutils literal notranslate"><span class="pre">sea_level_fact</span></code>) for this model to match reference level</td>
-<td>the reference level is the same  of ensemble</td>
+<tr class="row-odd"><td><p>add_factor</p></td>
+<td><p>Add a specific  offset factor (setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> as <code class="docutils literal notranslate"><span class="pre">sea_level_fact</span></code>) for this model to match reference level</p></td>
+<td><p>the reference level is the same  of ensemble</p></td>
 </tr>
-<tr class="row-even"><td>mask_before_interpolation</td>
-<td>Add a mask to some part of the model before interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</td>
-<td>All values of source model are suitable</td>
+<tr class="row-even"><td><p>mask_before_interpolation</p></td>
+<td><p>Add a mask to some part of the model before interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</p></td>
+<td><p>All values of source model are suitable</p></td>
 </tr>
-<tr class="row-odd"><td>spatial_interpolation</td>
-<td>Interpolate to match same grid of the ensemble</td>
-<td>already match same grid of the ensemble</td>
+<tr class="row-odd"><td><p>spatial_interpolation</p></td>
+<td><p>Interpolate to match same grid of the ensemble</p></td>
+<td><p>already match same grid of the ensemble</p></td>
 </tr>
-<tr class="row-even"><td>extrapolate_missing</td>
-<td>Extrapolate missing values</td>
-<td>No need to fill missing value in source model</td>
+<tr class="row-even"><td><p>extrapolate_missing</p></td>
+<td><p>Extrapolate missing values</p></td>
+<td><p>No need to fill missing value in source model</p></td>
 </tr>
-<tr class="row-odd"><td>mask_after_interpolation</td>
-<td>Add a mask to some part of the model after interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</td>
-<td>All values of source model are suitable</td>
+<tr class="row-odd"><td><p>mask_after_interpolation</p></td>
+<td><p>Add a mask to some part of the model after interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</p></td>
+<td><p>All values of source model are suitable</p></td>
 </tr>
-<tr class="row-even"><td>mask_outside_area</td>
-<td>Mask value outside area of interest</td>
-<td>The extension of source model is the same of ensemble</td>
+<tr class="row-even"><td><p>mask_outside_area</p></td>
+<td><p>Mask value outside area of interest</p></td>
+<td><p>The extension of source model is the same of ensemble</p></td>
 </tr>
-<tr class="row-odd"><td>add_tide</td>
-<td>Add astronomical tide model  to source forecast model</td>
-<td>Forecast model already integrte tide.</td>
+<tr class="row-odd"><td><p>add_tide</p></td>
+<td><p>Add astronomical tide model  to source forecast model</p></td>
+<td><p>Forecast model already integrte tide.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="waves-prepare">
-<h3>Waves prepare<a class="headerlink" href="#waves-prepare" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="colwidths-auto docutils" id="id2">
-<caption><span class="caption-text">Processing steps waves</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">JSON name</th>
-<th class="head">Description</th>
-<th class="head">Can be skipped if…</th>
+</section>
+<section id="waves-prepare">
+<h3>Waves prepare<a class="headerlink" href="#waves-prepare" title="Permalink to this headline"></a></h3>
+<table class="colwidths-auto docutils align-default" id="id2">
+<caption><span class="caption-text">Processing steps waves</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>JSON name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Can be skipped if…</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>merge_components</td>
-<td>Merge multiple files from the source forecast to have allthe waves variables (Wave Significant Height, Wave period and Wave direction) in the same file.</td>
-<td>Source forecast model already have the three variables in the same file.</td>
+<tbody>
+<tr class="row-even"><td><p>merge_components</p></td>
+<td><p>Merge multiple files from the source forecast to have allthe waves variables (Wave Significant Height, Wave period and Wave direction) in the same file.</p></td>
+<td><p>Source forecast model already have the three variables in the same file.</p></td>
 </tr>
-<tr class="row-odd"><td>variable_selection</td>
-<td>Select from source file only the three variables about waves (variable names setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>) and rename them according to <span class="guilabel">ensemble_variables</span> in <span class="guilabel">config.json</span>.</td>
-<td>The source file has only the variables about waves and</td>
+<tr class="row-odd"><td><p>variable_selection</p></td>
+<td><p>Select from source file only the three variables about waves (variable names setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>) and rename them according to <span class="guilabel">ensemble_variables</span> in <span class="guilabel">config.json</span>.</p></td>
+<td><p>The source file has only the variables about waves and</p></td>
 </tr>
-<tr class="row-even"><td>invert_latitude</td>
-<td>Invert latitude direction usng <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">invertlat</span></code> command</td>
-<td>The latitude is already coherent with the ensemble</td>
+<tr class="row-even"><td><p>invert_latitude</p></td>
+<td><p>Invert latitude direction usng <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">invertlat</span></code> command</p></td>
+<td><p>The latitude is already coherent with the ensemble</p></td>
 </tr>
-<tr class="row-odd"><td>set_miss_value</td>
-<td>Fill missing value with <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">setmissval</span></code> . Missing value is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> (<code class="docutils literal notranslate"><span class="pre">miss_value</span></code>)</td>
-<td>The source forecast</td>
+<tr class="row-odd"><td><p>set_miss_value</p></td>
+<td><p>Fill missing value with <code class="docutils literal notranslate"><span class="pre">cdo</span> <span class="pre">setmissval</span></code> . Missing value is setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a> (<code class="docutils literal notranslate"><span class="pre">miss_value</span></code>)</p></td>
+<td><p>The source forecast</p></td>
 </tr>
-<tr class="row-even"><td>change_int_float</td>
-<td>Change data type of variables integer  float</td>
-<td>Data type for all variables are already float</td>
+<tr class="row-even"><td><p>change_int_float</p></td>
+<td><p>Change data type of variables integer  float</p></td>
+<td><p>Data type for all variables are already float</p></td>
 </tr>
-<tr class="row-odd"><td>temporal_interpolation</td>
-<td>Temporal interpolation to match start, end and timesteps</td>
-<td>source model has exact timesteps of the ensemble</td>
+<tr class="row-odd"><td><p>temporal_interpolation</p></td>
+<td><p>Temporal interpolation to match start, end and timesteps</p></td>
+<td><p>source model has exact timesteps of the ensemble</p></td>
 </tr>
-<tr class="row-even"><td>get_48hours</td>
-<td>Get 48hours</td>
-<td>Step description</td>
+<tr class="row-even"><td><p>get_48hours</p></td>
+<td><p>Get 48hours</p></td>
+<td><p>Step description</p></td>
 </tr>
-<tr class="row-odd"><td>set_grid_unstructured</td>
-<td>Set grid unstructured</td>
-<td>Step description</td>
+<tr class="row-odd"><td><p>set_grid_unstructured</p></td>
+<td><p>Set grid unstructured</p></td>
+<td><p>Step description</p></td>
 </tr>
-<tr class="row-even"><td>spatial_interpolation</td>
-<td>Spatial interpolation</td>
-<td>Step description</td>
+<tr class="row-even"><td><p>spatial_interpolation</p></td>
+<td><p>Spatial interpolation</p></td>
+<td><p>Step description</p></td>
 </tr>
-<tr class="row-odd"><td>extrapolate_missing</td>
-<td>Extrapolate missing value with <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">fillmiss`</span></code></td>
-<td>Step description</td>
+<tr class="row-odd"><td><p>extrapolate_missing</p></td>
+<td><p>Extrapolate missing value with <code class="docutils literal notranslate"><span class="pre">`cdo</span> <span class="pre">fillmiss`</span></code></p></td>
+<td><p>Step description</p></td>
 </tr>
-<tr class="row-even"><td>mask_after_interpolation</td>
-<td>Mask after interpolation</td>
-<td>Step description</td>
+<tr class="row-even"><td><p>mask_after_interpolation</p></td>
+<td><p>Add a mask to some part of the model after interpolation (values setted in <a class="reference internal" href="#src-config"><span class="std std-ref">Suorce Configuration</span></a>)</p></td>
+<td><p>All values of source model are suitable</p></td>
 </tr>
-<tr class="row-odd"><td>mask_outside_area</td>
-<td>Mask outside area</td>
-<td>Step description</td>
+<tr class="row-odd"><td><p>mask_outside_area</p></td>
+<td><p>Mask value outside area of interest</p></td>
+<td><p>The extension of source model is the same of ensemble</p></td>
 </tr>
-<tr class="row-even"><td>remove_zero_values</td>
-<td>Remove zero values</td>
-<td>Step description</td>
+<tr class="row-even"><td><p>remove_zero_values</p></td>
+<td><p>Remove values setted to zero and replace with missing value</p></td>
+<td><p>No data values are setted correctly</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

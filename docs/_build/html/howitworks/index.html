@@ -1,21 +1,23 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Software description &mdash; MMES 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Software description &mdash; MMES 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,7 +40,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Software description</a><ul>
@@ -78,20 +80,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="software-description">
-<span id="howitworks"></span><h1>Software description<a class="headerlink" href="#software-description" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="inputs">
-<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h2>
+  <section id="software-description">
+<span id="howitworks"></span><h1>Software description<a class="headerlink" href="#software-description" title="Permalink to this headline"></a></h1>
+<section id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline"></a></h2>
 <p>To run the MMES software you need to provide</p>
 <ul class="simple">
-<li>a list of sources sources.json: each source can provide one or more models for one or more variable</li>
-<li>a mask file with the final grid you want to get</li>
-<li>[optional] a wheights file for each model that needs to be spatially interpolated to fit the multi-model ansemble</li>
-<li>a small amount of configuration information (directory in which all data will be available, variable to be considered …) see [<a class="reference internal" href="../configuration/index.html#gen-config"><span class="std std-ref">General Configuration</span></a>] section</li>
+<li><p>a list of sources sources.json: each source can provide one or more models for one or more variable</p></li>
+<li><p>a mask file with the final grid you want to get</p></li>
+<li><p>[optional] a wheights file for each model that needs to be spatially interpolated to fit the multi-model ansemble</p></li>
+<li><p>a small amount of configuration information (directory in which all data will be available, variable to be considered …) see [<a class="reference internal" href="../configuration/index.html#gen-config"><span class="std std-ref">General Configuration</span></a>] section</p></li>
 </ul>
-</div>
-<div class="section" id="directory-structure">
-<span id="dir-structure"></span><h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="directory-structure">
+<span id="dir-structure"></span><h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline"></a></h2>
 <p>The application directory has python scripts and a subdirectory ‘’’scripts’’’ with bash scripts used to download special sources or called by subprocess during program execution</p>
 <p>The data directory should have the following structure:</p>
 <div class="line-block">
@@ -119,35 +121,35 @@ The name of the ensemble can be setted in <span class="guilabel">config.json</sp
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="nb">dir</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="retrieve-and-download-phase">
-<h2>1. Retrieve and download phase<a class="headerlink" href="#retrieve-and-download-phase" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="retrieve-and-download-phase">
+<h2>1. Retrieve and download phase<a class="headerlink" href="#retrieve-and-download-phase" title="Permalink to this headline"></a></h2>
 <blockquote>
-<div><div class="figure">
+<div><figure class="align-default">
 <img alt="../_images/MMES_download.png" src="../_images/MMES_download.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>The source forecasts are provided in different formats and from different types of sources (ftp or http or other). The diagram of the download stage of MMES software is shown in Figure 1. The Daily forecasts are usually published in the morning, but they are not available at the same time and therefore the software contacts all source nodes at regular intervals and checks if the current file is available. If the file is already downloaded and processed the software will pass to the next node.
 For http sources the exact path of the file to download is needed, for ftp sources the software needs the directory name and filename. The naming schema of the files is different for each provider but usually can be constructed using a constant pattern and current date value.</p>
 <p>If the download process is interrupted due to network issues or other causes, the file can be incomplete and not suitable to create the ensemble. The forecast duration is checked after download (start time, end time) to ensure that it covers at least the time period of the ensemble (2 days), otherwise the file is deleted so it can be downloaded on the next cycle. If the download process is interrupted due to network issues or other causes, the file can be incomplete and not suitable to create the ensemble. The forecast duration is checked after download (start time, end time) to ensure that it covers at least the time period of the ensemble (2 days), otherwise the file is deleted so it can be downloaded on the next cycle.</p>
-</div>
-<div class="section" id="processing-phase">
-<h2>2. Processing phase<a class="headerlink" href="#processing-phase" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="processing-phase">
+<h2>2. Processing phase<a class="headerlink" href="#processing-phase" title="Permalink to this headline"></a></h2>
 <blockquote>
-<div><div class="figure">
+<div><figure class="align-default">
 <img alt="../_images/MMES_processing.png" src="../_images/MMES_processing.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>If the file is valid, the software will pass to the processing phase. The diagram of the processing stage of MMES software is shown in Figure 2. Each forecast has to be processed in a different way: all the possible steps are implemented in the code (e.g. merge or split variables, rename variables, spatial interpolation on the final grid, temporal interpolation, add tide and offset for sea level, invert wave direction and so on). The processing steps and relative parameters required for each forecast are declared in the configuration files as a JSON object.
 On each step, a temporary output file is created: the Python cdo wrapper library manages temporary filenames and makes available the data as a Python variable, then clears all temporary files at the end. Then the result is saved as a NetCDF file inside the component’s directory. At the end of each processing cycle, the software goes to the ensemble creation phase.
 The configuration of different processing steps for each variable is the most important part of configuration. See <a class="reference internal" href="../configuration/index.html#proc-config"><span class="std std-ref">Processing steps Configuration</span></a> for details.</p>
-</div>
-<div class="section" id="ensemble-creation-phase">
-<h2>3. Ensemble creation phase<a class="headerlink" href="#ensemble-creation-phase" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="ensemble-creation-phase">
+<h2>3. Ensemble creation phase<a class="headerlink" href="#ensemble-creation-phase" title="Permalink to this headline"></a></h2>
 <blockquote>
-<div><div class="figure">
+<div><figure class="align-default">
 <img alt="../_images/MMES_creation.png" src="../_images/MMES_creation.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>The general configuration sets a minimum number of files for the ensemble creation: the ensemble output is overwritten on the next cycles adding more forecasts, when available (last execution is scheduled at 14.00). The diagram of the ensemble precaution stage of MMES software is shown in Figure 3.
 All numerical model results are interpolated, through a distance-weighted average remapping of the nearest neighbours, on a common regular lat-lon grid covering the Adriatic Sea with a resolution of 0.02 deg.
@@ -155,14 +157,14 @@ For coastal flooding hazard purposes, the total sea level height must be forecas
 <p>Figure 3: Diagram of ensemble creation stage of MMES software.
 The CDO library provides simple commands to compute the mean and standard deviation of a variable. For the wave ensemble we have three different variables, wave significant height, wave period and wave direction: the wave direction is expressed in degrees and must be splitted in the U and V components, then merge the ensembles again.
 The ensemble forecast duration is 2 days with 48 hourly timesteps, but users can set a different duration in configuration files. When the new ensemble is ready, the previous day is trimmed to the first 24h hours and archived in the history folder: the Thredds data server will publish the whole collection so can be downloaded a subset of custom duration for the past multi-model files.</p>
-</div>
-<div class="section" id="mmes-outputs">
-<h2>MMES Outputs<a class="headerlink" href="#mmes-outputs" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="mmes-outputs">
+<h2>MMES Outputs<a class="headerlink" href="#mmes-outputs" title="Permalink to this headline"></a></h2>
 <p>MMES produces 2-day (duration is defined in <a class="reference external" href="https://github.com/CNR-ISMAR/mmes/blob/8f17dd136ef268e18359769633fb032bd3dd4c62/mmes_functions.py#L95">mes_functions.py L95</a> )probabilistic forecasts in terms of the ensemble <span class="guilabel">mean</span> and <span class="guilabel">standard</span> deviation for both the sea level height and wave over the whole Adriatic Sea and part of the Ionian Sea. The spread (i.e. standard deviation) among the operational simulations is expected to represent a measure of the uncertainty of the prediction and should be linked to the forecast error so that cases with the largest spread are those with the highest uncertainty and where a large error of the ensemble mean (and also of the deterministic forecast) is more likely (Flowerdew et al., 2010).
 It is not straightforward what averaging weights should be used for the multi-model ensemble forecast and therefore we used equally weighted ensemble members, despite the forecasts which are more precise than others should have more importance in the MMES (Salighehdar et al., 2017; Schevenhoven and Selten, 2017). Here we applied a simple average of the forecasts at every timestamp to compute the ensemble mean, but more sophisticated methods based on weighting function determined by comparison of the single model results with near real-time observations will be implemented in future (Di Liberto et al., 2011; Salighehdar et al., 2017). Taking advantage of the near real-time observations acquired by the aggregated monitoring network, the root mean square error of the individual forecast will be next evaluated and stored for long-term statistics.
 MMES forecasts are produced each day. MMES outputs (in terms of ensemble mean and standard deviation of the sea level and waves) in NetCDF format are available to the end-users and external portals through the CNR-ISMAR Thredds Data Server at the webpage’s url <a class="reference external" href="https://iws.ismar.cnr.it/thredds/catalog/tmes/catalog.html">https://iws.ismar.cnr.it/thredds/catalog/tmes/catalog.html</a>. The results of the multi-model ensemble system can be visualized via the I-STORMS Geoportal web interfaces (<a class="reference external" href="https://iws.seastorms.eu/">https://iws.seastorms.eu/</a>). The results will be next delivered through the STREAM International Flood Platform.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

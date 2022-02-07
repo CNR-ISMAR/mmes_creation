@@ -10,7 +10,7 @@ Multi model ensemble system (MMES)
 
 This software is intended to collect daily oceanographic forecasts from different sources and create a Multi-model Ensemble. The software is specifically designed to publish NetCDF files about sea-level and waves, but can be configured to manage other variables.
 
-.. figure:: ../img/multi-model.png
+    .. figure:: ./img/multi-model.png
 
 Ocean forecast results are collected by the system every day in the morning: the program contacts each provider of the list, checks if an updated model exists, downloads it and stores it on a local filesystem using one folder for each node with current and historical data. If the updated forecast is not present in the node, the system will pass to the next node and retry later. Once all forecasts available are downloaded, the multi-model builder prepares the data harmonizing all different forecasts. The ensemble creation procedure can be three main task:
 1. retrieve and download each single forecast file provided from different sources;
