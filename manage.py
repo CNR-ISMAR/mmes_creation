@@ -2,8 +2,6 @@
 # Script to manage configuration files for MMES creation
 # --------------------------------------------
 
-
-
 import json
 import os
 import re
@@ -23,14 +21,11 @@ if not os.path.isfile(procfile):
 configfile = 'config.json'
 
 
-
 @attr.s
 class Source(object):
     # attributes
-    fullname = attr.ib(default='')
     name = attr.ib(default='')
     fullname = attr.ib(default='')
-    name = attr.ib(default='')
     srctype = attr.ib(default='')
     url = attr.ib(default='')
     ftp_dir = attr.ib(default='')
@@ -64,22 +59,22 @@ def loadconfig(file=configfile):
     You can declare data_dir and use {data_dir} in subsequent declarations
     :param file: full path of config file
     """
-    Config = json.load(open(file))
+    config = json.load(open(file))
     # format config itmes with template
-    for k,v in Config.items():
-        s = str(Config[k])
+    for k,v in config.items():
+        s = str(config[k])
         p = '{(\w+)}'
         if re.match(p, s):
-            Config[k] = Config[k].format(**Config)
+            config[k] = config[k].format(**config)
 
-    return  Config
+    return  config
 
 def checkdirs():
-    Config = loadconfig('config.json')
+    config = loadconfig('config.json')
     # check if default structure exists in data_dir
-    data_dir = Config['data_dir']
+    data_dir = config['data_dir']
     cur_dirs = os.listdir(data_dir)
-    def_dirs = ['config','config/mask', 'config/weights', 'forecasts', 'mmes_components', 'tmp', Config['ensemble_name'], Config['ensemble_name'] +'/history']
+    def_dirs = ['config','config/mask', 'config/weights', 'forecasts', 'mmes_components', 'tmp', config['ensemble_name'], config['ensemble_name'] +'/history']
     for d in def_dirs:
         if not os.path.exists(data_dir + '/' + d):
             prompt = 'would you like to create directory ' + data_dir + '/' + d +'?'
@@ -87,26 +82,31 @@ def checkdirs():
             if create[0:1] in ('Y', 'y', 'S', 's'):
                 os.makedirs(data_dir + '/' + d)
                 print('dir created')
+        else:
+            print(' '.join(['dir', d, 'already exists']))
 
 def checkbin():
     """
     Check if erquired binary are available
     """
+    msg = ''
     # check cdo
     try:
         from cdo import Cdo
         cdo = Cdo()
+        msg = msg + 'cdo binary is present'
     except FileNotFoundError:
-        msg = 'cdo binary not found'
-        print(msg)
+        msg = msg + 'cdo binary not found'
+
+    msg = msg + ' and '
     # check nco
     try:
         cmd_arguments = ['ncap2', '-h']
         p = run(cmd_arguments)
+        msg = msg + 'nco binary is present'
     except FileNotFoundError:
-        msg = 'nco binary not found'
-        print(msg)
-
+        msg = msg + 'nco binary not found'
+    return  print(msg)
 
 def readsources(filename):
     """
@@ -139,6 +139,7 @@ def modsource(srclist, new=False):
         msg = 'Modify existing sources from file '+ sourcesfile + '\n'
         print(line + msg + line)
         while True:
+            n = None
             for i in range(len(srclist)):
                 print(str(i) + ' ' + srclist[i].name + ' (' + str(len(srclist[i].models)) + ' models)')
             prompt = 'Which source would you modify? [enter number]'
@@ -164,6 +165,8 @@ def modsource(srclist, new=False):
                 msg = "Editing " + m.system + ' from ' + current.fullname + ' - model' + str(currentmodels.index(m)+1) + ' of ' + str(len(currentmodels))
                 print(line + msg + '\n')
                 modmodel(current, m)
+                # save changes to file
+                saveandexit(srclist)
             while True:
                 # at the end check user input for new model
                 prompt = '\n Would you like to add a new model for source ' + current.fullname + '? [Y/N]'
@@ -174,6 +177,7 @@ def modsource(srclist, new=False):
                     new = Model()
                     currentmodels.append(new)
                     modmodel(current, current.models[-1])
+                    saveandexit(srclist)
                     break
                 elif add[0:1] in ('N','n'):
                     prompt = 'would you like to modify another source? [Y/N]'
@@ -198,7 +202,8 @@ def modsource(srclist, new=False):
                 else:
                     current.__dict__[k] = r
                     break
-
+            # save changes to file
+            saveandexit(srclist)
 
 def modmodel(source, model):
     for k in model.__dict__.keys():
@@ -217,6 +222,7 @@ def modmodel(source, model):
     setproc = input(prompt) or 'N'
     if setproc[0:1] in ('Y', 'y', 'S', 's'):
         prep_steps(source, model)
+
 
 
 
@@ -261,6 +267,16 @@ def saveandexit(srclist):
     fp.close()
     print('file ' + sourcesfile +  ' saved')
 
+def addsource(s):
+    modsource(s, True)
+
+def newsourcelist():
+    prompt = "type new filename for sources:"
+    sourcesfile = os.path.splitext(input(prompt))[0] + '.json'
+    sourcelist = readsources(sourcesfile)
+    modsource(sourcelist, True)
+
+
 if __name__ == "__main__":
     # read sources from sources file
     sourcelist = readsources(sourcesfile)
@@ -272,18 +288,32 @@ if __name__ == "__main__":
     with open(sourcesfile + '.bak', 'w') as fp:
         json.dump(sourcesdict, fp, indent=4, default=obj_dict)
     fp.close()
+
+    # dictionary of possible action
+    action_dict = {
+        'add': addsource,
+        'mod': modsource,
+        'new': newsourcelist,
+        'dir': checkdirs,
+        'bin': checkbin
+    }
     # check action required
-    action = sys.argv[1]
-    if action == 'add':
-        modsource(sourcelist, True)
-    if action == 'mod':
-        modsource(sourcelist)
-    if action == 'new':
-        prompt = "type new filename for sources:"
-        sourcesfile = os.path.splitext(input(prompt))[0] + '.json'
-        sourcelist = readsources(sourcesfile)
-        modsource(sourcelist, True)
-    if action == 'dir':
-        checkdirs()
-    if action == 'bin':
-        checkbin()
+    print(sys.argv[1])
+
+    try:
+        action_dict[sys.argv[1]](sourcelist)
+    except TypeError:
+        try:
+            action_dict[sys.argv[1]]()
+        except:
+
+            msg = 'Usage: python manage.py [arg]\n\
+            Please use one of the following arguments:\n\
+                - add: if you want to add a source to source list\n\
+                - mod: if you want to modify existing sources\n\
+                - new: to create a new config file for source list\n\
+                - dir: to create directory structure\n\
+                - bin: to check if required libraries are installed'
+            print(msg)
+
+
