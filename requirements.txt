@@ -15,7 +15,7 @@ ipython==7.13.0
 ipython-genutils==0.2.0
 jedi==0.16.0
 motuclient==1.8.4
-numpy==1.18.1
+numpy==1.22.0
 pandas==1.0.2
 parso==0.6.2
 pexpect==4.8.0
