@@ -90,6 +90,8 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
             # set time axis (already setted for most models
             tempfile = cdo.settaxis(date,"00:00:00","1hour", input=tempfile)
             tempfile = cdo.inttime(date,"00:00:00","1hour", input=tempfile)
+            # TODO in case of dry-run print the above command in this form
+            # cdo -inttime,2011-01-01,00:00:00,1 hour inputfile outptufile
         if ms  in steps['get_48hours']:
             # Get fields in the 00-23 time range
             tempfile = cdo.seldate(date+"T00:00:00,"+date2+"T23:00:00", input=tempfile)
@@ -100,7 +102,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
             expr = var +'=' +var +'-'+fact
             tempfile = cdo.expr(expr, input=tempfile)
         # mask before interpolation
-        for s in steps['mask_before_interpolation']:
+        for s in steps['dict_mask_before_interpolation']:
              if ms in s.keys():
                  modmask = s[ms]
                  cmd_arguments = ['ncap2', '-s', modmask, tempfile]
@@ -119,13 +121,11 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
                 cdo.gendis(gridfile,input=tempfile,output=weightfile)
             # use cdo remap
             tempfile = cdo.remap(gridfile,weightfile,input=tempfile)
-
         # extrapolate_missing values
         if ms in steps['extrapolate_missing']:
             tempfile = cdo.fillmiss(input=tempfile)
-
         # mask_after_interpolation
-        for s in steps['mask_after_interpolation']:
+        for s in steps['dict_mask_after_interpolation']:
             if ms in s.keys():
                 modmask = s[ms]
                 cmd_arguments = ['ncap2', '-s', modmask , tempfile]
@@ -186,7 +186,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
         ms = model.system
 
         # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries widh model:system
-        for st in steps['merge_components']:
+        for st in steps['dict_merge_components']:
             if ms in st.keys():
                 # get list of files with model system and var in the filename
                 # to do the merge  must be equal to value setted in st[ms] from processing.json config
@@ -265,7 +265,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
         if ms in steps['extrapolate_missing']:
             tempfile = cdo.fillmiss(input=tempfile)
         # step 5 mask_after_interpolation
-        for s in steps['mask_after_interpolation']:
+        for s in steps['dict_mask_after_interpolation']:
             if ms in s.keys():
                 modmask = s[ms]
                 cmd_arguments = ['ncap2', '-s', modmask , tempfile]

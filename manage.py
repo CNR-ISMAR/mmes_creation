@@ -7,9 +7,14 @@ import os
 import re
 import sys
 import attr
+import argparse
 from subprocess import run
+# Management script for MMES ingestion
+# This script provide management functions for Multi Model Ensamble Creation,
+# add new source/model or modify model/steps preparation
+# Amedeo Fadini CNR-ISMAR 2020-2023
 # get sourcesfile from arguments
-sourcesfile = 'sources.json'
+# sourcesfile = 'sources.json'
 if sys.argv[2:]:
     if os.path.isfile(sys.argv[2]):
         sourcesfile = sys.argv[2]
@@ -18,9 +23,12 @@ templatefile = 'sources_template.json'
 procfile = 'processing.json'
 if not os.path.isfile(procfile):
     procfile = 'processing_template.json'
+# read configuration from file
 configfile = 'config.json'
 
 
+# Source object, define a provider of data that publish one od more models
+# trhough ftp, https or custom script for download
 @attr.s
 class Source(object):
     # attributes
@@ -33,7 +41,7 @@ class Source(object):
     password = attr.ib(default='')
     models = attr.ib(default=[])
 
-
+# Model object, indentified by the model system name (should be unique)
 @attr.s
 class Model(object):
     # attributes
@@ -70,7 +78,12 @@ def loadconfig(file=configfile):
     return  config
 
 def checkdirs():
+    """
+    Check local directory structure of data dir (param data_dir in config file):
+    creates required directories if not present
+    """
     config = loadconfig('config.json')
+    sourcesfile = config["sources_file"]
     # check if default structure exists in data_dir
     data_dir = config['data_dir']
     cur_dirs = os.listdir(data_dir)
@@ -87,7 +100,7 @@ def checkdirs():
 
 def checkbin():
     """
-    Check if erquired binary are available
+    Check if erquired binary are available in the system
     """
     msg = ''
     # check cdo
@@ -124,6 +137,40 @@ def readsources(filename):
 
     return obj_sources
 
+def selectsource(srclist):
+    while True:
+        n = None
+        for i in range(len(srclist)):
+            print(str(i) + ' ' + srclist[i].name + ' (' + str(len(srclist[i].models)) + ' models)')
+        prompt = 'Which source would you like to choose? [enter number]'
+        try:
+            n = int(input(prompt))
+        except ValueError:
+            print('Enter an integer betwwen 0 and ' + str(len(srclist) - 1))
+            continue
+        if n not in range(len(srclist)):
+            print('Invalid value')
+        else:
+            break
+    return srclist[n]
+
+def selectmodel(modelslist):
+    while True:
+        n = None
+        for i in range(len(modelslist)):
+            m = modelslist[i]
+            print(str(i) + ' ' + m.system + ' (' + m.variable +')')
+        prompt = 'Which model would you like to choose? [enter number]'
+        try:
+            n = int(input(prompt))
+        except ValueError:
+            print('Enter an integer betwwen 0 and ' + str(len(modelslist) - 1))
+            continue
+        if n not in range(len(modelslist)):
+            print('Invalid value')
+        else:
+            break
+    return modelslist[n]
 
 def modsource(srclist, new=False):
     line = '-' * 20 + '\n'
@@ -138,35 +185,20 @@ def modsource(srclist, new=False):
         # Default: list all sources and let user choose wich modify
         msg = 'Modify existing sources from file '+ sourcesfile + '\n'
         print(line + msg + line)
-        while True:
-            n = None
-            for i in range(len(srclist)):
-                print(str(i) + ' ' + srclist[i].name + ' (' + str(len(srclist[i].models)) + ' models)')
-            prompt = 'Which source would you modify? [enter number]'
-            try:
-                n = int(input(prompt))
-            except ValueError:
-                print('Enter an integer betwwen 0 and ' + str(len(srclist)-1))
-                continue
-            if n not in range(len(srclist)):
-                print('Invalid value')
-            else:
-                break
         # current source element from user input
-        current = srclist[n]
+        current = selectsource(srclist)
         msg = 'Editing ' + current.name
         print(line + msg + '\n')
     # change every key of the source from use input
     for k in current.__dict__.keys():
         # different condition for key models
         if k == 'models':
-            currentmodels = current.models
-            for m in currentmodels:
-                msg = "Editing " + m.system + ' from ' + current.fullname + ' - model' + str(currentmodels.index(m)+1) + ' of ' + str(len(currentmodels))
-                print(line + msg + '\n')
-                modmodel(current, m)
-                # save changes to file
-                saveandexit(srclist)
+            m = selectmodel(current.models)
+            msg = "Editing " + m.system + ' from ' + current.fullname + ' - model' + str(current.models.index(m)+1) + ' of ' + str(len(current.models))
+            print(line + msg + '\n')
+            modmodel(current, m)
+            # save changes to file
+            saveandexit(srclist)
             while True:
                 # at the end check user input for new model
                 prompt = '\n Would you like to add a new model for source ' + current.fullname + '? [Y/N]'
@@ -175,7 +207,7 @@ def modsource(srclist, new=False):
                 if add[0:1] in ('Y', 'y', 'S', 's'):
                     print('Adding new model')
                     new = Model()
-                    currentmodels.append(new)
+                    current.models.append(new)
                     modmodel(current, current.models[-1])
                     saveandexit(srclist)
                     break
@@ -205,6 +237,9 @@ def modsource(srclist, new=False):
             # save changes to file
             saveandexit(srclist)
 
+def addsource(s):
+    modsource(s, True)
+
 def modmodel(source, model):
     for k in model.__dict__.keys():
         while True:
@@ -224,9 +259,9 @@ def modmodel(source, model):
         prep_steps(source, model)
 
 
-
-
 def prep_steps(source, model):
+    if model.variable.endswith('_waves'):
+        model.variable = 'waves'
     key = model.variable + '_prepare'
     processing = json.load(open(procfile))
     steps = processing[key]
@@ -234,18 +269,35 @@ def prep_steps(source, model):
     for k, v  in steps.items():
         msg = 'current step for ' + model.variable + ' is ' + k
         print(msg)
-        if model.system in steps[k]:
-            prompt = model.system + ' is present in ' + k + \
-                     '. Do you want to remove it? '
-            rmv = input(prompt)
-            if rmv[0:1] in ('Y', 'y', 'S', 's'):
-                steps[k].remove(model.system)
+        # some steps require a dictionary
+        if k.startswith('dict'):
+            for k2, v2 in steps[k]:
+                if model.system == k2:
+                    prompt = model.system + ' is present in ' + k + \
+                            'with value ' + v2 +\
+                             '. Do you want to remove it? '
+                else:
+                    prompt = model.system + ' is NOT present in ' + k + \
+                         '. Do you want to add it? '
+                apn = input(prompt)
+                if apn[0:1] in ('Y', 'y', 'S', 's'):
+                    prompt2 = 'type value:'
+                    val2 = input(prompt2)
+                    steps[k].append({model.system: val2})
         else:
-            prompt = model.system + ' is NOT present in ' + k + \
-                     '. Do you want to add it? '
-            apn = input(prompt)
-            if apn[0:1] in ('Y', 'y', 'S', 's'):
-                steps[k].append(model.system)
+            # other steps has a list of model names
+            if model.system in steps[k]:
+                prompt = model.system + ' is present in ' + k + \
+                         '. Do you want to remove it? '
+                rmv = input(prompt)
+                if rmv[0:1] in ('Y', 'y', 'S', 's'):
+                    steps[k].remove(model.system)
+            else:
+                prompt = model.system + ' is NOT present in ' + k + \
+                         '. Do you want to add it? '
+                apn = input(prompt)
+                if apn[0:1] in ('Y', 'y', 'S', 's'):
+                    steps[k].append(model.system)
     # add modified steps to dictionary
     processing[key] = steps
     # save json file
@@ -267,8 +319,7 @@ def saveandexit(srclist):
     fp.close()
     print('file ' + sourcesfile +  ' saved')
 
-def addsource(s):
-    modsource(s, True)
+
 
 def newsourcelist():
     prompt = "type new filename for sources:"
@@ -276,9 +327,22 @@ def newsourcelist():
     sourcelist = readsources(sourcesfile)
     modsource(sourcelist, True)
 
+def test_preparation(sourcelist, print=False):
+
+    # TODO  select source and model and launch prepare function on it
+     s = selectsource(sourcelist)
+     m = selectmodel(s.models)
+
+
+# def print_preparation():
+#     test_preparation(m,True)
+
+
 
 if __name__ == "__main__":
+    config = loadconfig(configfile)
     # read sources from sources file
+    sourcesfile = config["sources_file"]
     sourcelist = readsources(sourcesfile)
     # read sources template for hints
     hints = readsources(templatefile)[0]
@@ -295,25 +359,33 @@ if __name__ == "__main__":
         'mod': modsource,
         'new': newsourcelist,
         'dir': checkdirs,
-        'bin': checkbin
+        'bin': checkbin,
+        'test': test_preparation,
+        'print': print_preparation
     }
     # check action required
-    print(sys.argv[1])
+    # print(sys.argv[1])
 
-    try:
-        action_dict[sys.argv[1]](sourcelist)
-    except TypeError:
-        try:
-            action_dict[sys.argv[1]]()
-        except:
+    # try:
+    #     action_dict[sys.argv[1]](sourcelist)
+    # except TypeError:
+    #     try:
+    #         action_dict[sys.argv[1]]()
+    #     except:
 
-            msg = 'Usage: python manage.py [arg]\n\
-            Please use one of the following arguments:\n\
-                - add: if you want to add a source to source list\n\
-                - mod: if you want to modify existing sources\n\
-                - new: to create a new config file for source list\n\
-                - dir: to create directory structure\n\
-                - bin: to check if required libraries are installed'
-            print(msg)
+    msg = 'Usage: python manage.py [arg]\n\
+    Please use one of the following arguments:\n\
+        - add: if you want to add a source to source list\n\
+        - mod: if you want to modify existing sources\n\
+        - new: to create a new config file for source list\n\
+        - dir: to create directory structure\n\
+        - bin: to check if required libraries are installed\n\
+        - test: test all the preparation steps of a model\n\
+        - print: print all the preparation steps of a model'
 
+    # print(msg)
 
+    parser = argparse.ArgumentParser(description='Script to manage MMES configuration')
+    addhelp='add a source to source list and interactively define each step'
+    parser.add_argument('action', choices=['add','mod','new','dir','bin','print'], help=msg)
+    args = parser.parse_args()

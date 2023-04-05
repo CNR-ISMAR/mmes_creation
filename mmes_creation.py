@@ -12,7 +12,7 @@ from mmes_validate import check_time
 
 
 def main(today):
-    # load generl config from json
+    # load general config from json
     config = json.load(open(os.getcwd() + '/config.json'))
 
     # general configuration
@@ -32,6 +32,7 @@ def main(today):
     print(line + msg + line)
     # download sources and process forecast TODO parallelize processing and start new download
     for s in sources:
+
         # fix sources variables setted to currentdate
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
@@ -46,7 +47,7 @@ def main(today):
                 src = s.name
             basename = '_'.join([src, m.system, m.variable, today]) + m.ext
             filename = os.path.join(iws_datadir, 'forecasts', s.name, basename)
-            if s.srctype == 'login_ftp':
+            if s.srctype in ['ftp_login', 'ftp']:
                 download_ftp(s, m, tmpdir, filename, today)
             elif s.srctype in ['http_server', 'http_login']:
                 download_http(s, m, filename, today, progress)
@@ -57,7 +58,7 @@ def main(today):
                 if valid:
                     if m.variable.endswith('waves'):
                         print(filename)
-                        prepare_forecast_waves(s, m, filename, today)
+#                        prepare_forecast_waves(s, m, filename, today)
                     elif m.variable == 'sea_level':
                         prepare_forecast_sea_level(s, m, filename, today)
                     else:

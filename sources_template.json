@@ -3,7 +3,7 @@
         {
             "fullname": "human readable name",
             "name": "lowercase short name for files",
-            "srctype": "can be one of: [ftp, http_login, script]",
+            "srctype": "can be one of: [ftp, ftp_login, http_server, http_login, script]",
             "url": "url of http or ftp server",
             "ftp_dir": "ftp intial dir",
             "username": "username to be used to login to http or ftp server",
