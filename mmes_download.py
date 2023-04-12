@@ -7,7 +7,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from datetime import datetime, timedelta
-from ftplib import FTP
+from ftplib import FTP, all_errors
 
 # general variables
 
@@ -40,10 +40,11 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
     with FTP(source.url) as ftp:
         try:
             # test connection
-            FTP(source.url)
-            ftp.login(source.username, source.password)
-        except:
+            # FTP(source.url)
+            s = ftp.login(source.username, source.password)
+        except all_errors as e:
             print('could not connect to ' + source.url)
+            print(e)
             return
         if os.path.isfile(filename):
             print('file ' + filename + '\n already exists skipping')

@@ -2,7 +2,9 @@
 sources.py
 sources.json
 sources.json.bak
+sources.json*
 
+*.bash*
 
 
 .idea/
@@ -13,6 +15,7 @@ forecasts/
 /venv/
 
 scripts/remap_grid_ADRION
+virtualenv.sh
 
 docs/installazione.txt
 docs/errori_da _gestire.txt

@@ -11,7 +11,7 @@ from mmes_functions import create_mmes, archive_tmes, prepare_forecast_sea_level
 from mmes_validate import check_time
 
 
-def main(today):
+def main(today, vars=['sea_level','waves']):
     # load generl config from json
     config = json.load(open(os.getcwd() + '/config.json'))
 
@@ -26,7 +26,7 @@ def main(today):
     # date of previous mmes
     yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
     # show download progress (use only in debug mode otherwise logging will be verbose)
-    progress = True
+    progress = False
     line = '\n' + '-' * 80 + '\n'
     msg = 'Starting ensemble creation with ' + str(len(sources)) + ' sources. for date ' + today
     print(line + msg + line)
@@ -36,6 +36,7 @@ def main(today):
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
                 s.ftp_dir = today
+            
         for m in s.models:
             print(datetime.now().strftime("%Y%m%d %H:%M"))
             print(' '.join((s.name, m.system, m.variable)))
@@ -67,8 +68,10 @@ def main(today):
                     print('invalid file downloaded - deleted')
                     os.remove(filename)
     # create tmes and rotate
-    psl = create_mmes('sea_level', today)
-    pwv = create_mmes('waves', today)
+    if 'sea_level' in vars:
+        psl = create_mmes('sea_level', today)
+    if 'waves' in vars:
+        pwv = create_mmes('waves', today)
     if psl == 0:
         # check if exists previous tmes if not launch this script with old date as new argument
         p = archive_tmes('sea_level', yesterday)

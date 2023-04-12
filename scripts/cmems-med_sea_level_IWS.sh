@@ -29,11 +29,12 @@ Define_dir() {
 #  tmpdir="${iwsdir}/tmp"
 #  weidir="${bindir}/weights"
 #  mask="${bindir}/TMES_mask_002.nc"
-  motu="python -m motuclient"
+  motu="/usr/bin/python -m motuclient"
 
 
 
-  lfile="med-cmcc-ssh-an-fc-hts"
+  #lfile="med-cmcc-ssh-an-fc-hts"
+  lfile="cmems_mod_med_phy-ssh_anfc_4.2km_PT1HTS-m"
   #slfile="cmcc_mfs_sea_level_${date}.nc"
   slfile=$2
   locdir=`dirname "$slfile"`
@@ -55,7 +56,7 @@ Get_myocean() {
 # Set your CMEMS user and password
    user=${user}
    pass=${pass}
-   murl="http://nrt.cmems-du.eu/motu-web/Motu"
+   murl="https://nrt.cmems-du.eu/motu-web/Motu"
    surl="MEDSEA_ANALYSISFORECAST_PHY_006_013-TDS"
    tsleep=10
    varname="zos"
