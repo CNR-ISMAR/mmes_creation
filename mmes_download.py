@@ -32,6 +32,16 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
                                             currentisodate=fileisodate,
                                             ext=model.ext
                                 )
+    remotedir = source.ftp_dir.format(
+                    currentdate=filedate,
+                    currentisodate=fileisodate,
+                    variable=model.variable
+    )
+    remotepath = model.path.format(
+        currentdate=filedate,
+        currentisodate=fileisodate,
+        variable=model.variable
+    )
     filedir = os.path.dirname(filename)
     if not os.path.isdir(filedir):
         os.mkdir(filedir, 0o0775)
@@ -53,15 +63,18 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
             if not os.path.isdir(filedir):
                 os.mkdir(filedir, 0o0775)
             # remote dir change
+            # model dir: sourcedir + modelpath
+            changedir = os.path.join(remotedir, remotepath)
             try:
-                ftp.cwd(source.ftp_dir)
+                ftp.cwd(changedir)
                 _list = ftp.nlst()
             except:
                 print('Remote Dir not found')
                 return
+            #TODO iterate over subdir in filenames
             # parse list of files in remote dir
             for i in _list:
-                if str(i).strip().lower() == remotefile:
+                if str(i).strip().lower() == remotefile.lower():
                     print('Downlading ' + i)
                     try:
                         ftp.retrbinary('RETR ' + i, open(tmpdir + i, 'wb').write)

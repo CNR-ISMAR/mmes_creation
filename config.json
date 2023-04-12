@@ -1,10 +1,11 @@
 {
   "data_dir": "/usr3/iwsdata",
-  "sources_file": "sources.json",
+  "sources_file": "sources_test.json",
   "processing_fie": "processing.json",
   "ensemble_name": "TMES",
   "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["wsh", "wmp", "wmd"]},
   "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc",
   "gap_days":  "3",
-  "min_components": "3"
+  "min_components": "4",
+  "parametric_url":"AAAAMMDD"
 }

@@ -22,3 +22,5 @@ docs/errori_da _gestire.txt
 docs/miglioramenti.txt
 /processing.json
 /status.json
+/sources_full.json
+/sources_test.json
