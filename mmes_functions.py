@@ -24,7 +24,7 @@ ensemble_name = Config["ensemble_name"]
 data_dir = Config['data_dir']
 cdo = Cdo(tempdir=data_dir+'/tmp')
 
-def prepare_forecast_sea_level(source, model, filename, filedate):
+def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False):
     """
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -59,9 +59,12 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         tempfile = filename
 
         # step 1 preapare variables convert to NetCDF if file is .grib
-        if ms in steps['variable_selection']:
+        key = 'variable_selection'
+        if ms in steps[key]:
+            msg = "processing step:  " +  key
             varlist = model.var_names
             tempfile = cdo.selvar(varlist, input=tempfile, options="-f nc")
+
             # set miss value
             miss = model.miss_value
             if miss != '':
@@ -155,7 +158,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         cdo.copy(input=tempfile,output=processedfile)
 
 
-def prepare_forecast_waves(source, model, filename, filedate):
+def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
     """
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -184,7 +187,6 @@ def prepare_forecast_waves(source, model, filename, filedate):
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['waves_prepare']
         ms = model.system
-
         # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries widh model:system
         for st in steps['dict_merge_components']:
             if ms in st.keys():
@@ -202,11 +204,27 @@ def prepare_forecast_waves(source, model, filename, filedate):
                         print('prepared file exists, skipping')
                         return 0
                     cdo.merge(input=files,output=filename)
+                    if verbose:
+                        #print step
+                        print('**** dict_merge_components ****')
+                        #print command
+                        print('cdo merge ' + str(files) + '-o' + filename)
                 else:
                     msg = str(len(files)) + ' of ' + st[ms] + ' files present for model ' + ms
                     print(msg)
                     return
         # copy input file to tempfile and convert to NetCDF format
+        # for grib file use ncl_convert2nc
+        if model.ext=='.grb':
+            cmd_arguments = ['ncl_convert2nc', filename, ]
+            try:
+                p = run(cmd_arguments)
+                os.remove(filename)
+                filename = filename.replace(".grib", ".nc")
+            except Exception as e:
+                print('error in convert grib file: \n' + str(e))
+        # ARSO smmo file has now this variables
+        # "var_names": "SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL",
         tempfile = cdo.copy(input=filename, options='-f nc')
         # step 1 extract wave variables in correct order
         if ms in steps['variable_selection']:

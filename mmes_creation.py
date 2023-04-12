@@ -32,7 +32,6 @@ def main(today):
     print(line + msg + line)
     # download sources and process forecast TODO parallelize processing and start new download
     for s in sources:
-
         # fix sources variables setted to currentdate
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
@@ -42,6 +41,7 @@ def main(today):
             print(' '.join((s.name, m.system, m.variable)))
             # prepare filename based on source and model information
             if m.source != '':
+                # some models have another source not their provider
                 src = m.source
             else:
                 src = s.name
