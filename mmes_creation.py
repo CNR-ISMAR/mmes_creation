@@ -59,7 +59,7 @@ def main(today, vars=['sea_level','waves']):
                 if valid:
                     if m.variable.endswith('waves'):
                         print(filename)
-#                        prepare_forecast_waves(s, m, filename, today)
+                        prepare_forecast_waves(s, m, filename, today)
                     elif m.variable == 'sea_level':
                         prepare_forecast_sea_level(s, m, filename, today)
                     else:

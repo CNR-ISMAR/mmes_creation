@@ -1,6 +1,6 @@
 {
   "data_dir": "/usr3/iwsdata",
-  "sources_file": "sources_test.json",
+  "sources_file": "sources.json",
   "processing_fie": "processing.json",
   "ensemble_name": "TMES",
   "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["wsh", "wmp", "wmd"]},
