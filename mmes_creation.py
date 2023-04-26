@@ -11,7 +11,7 @@ from mmes_functions import create_mmes, archive_tmes, prepare_forecast_sea_level
 from mmes_validate import check_time
 
 
-def main(today, vars=['sea_level','waves']):
+def main(today, vars):
     # load general config from json
     config = json.load(open(os.getcwd() + '/config.json'))
 
@@ -26,7 +26,7 @@ def main(today, vars=['sea_level','waves']):
     # date of previous mmes
     yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
     # show download progress (use only in debug mode otherwise logging will be verbose)
-    progress = False
+    progress = True
     line = '\n' + '-' * 80 + '\n'
     msg = 'Starting ensemble creation with ' + str(len(sources)) + ' sources. for date ' + today
     print(line + msg + line)
@@ -38,6 +38,9 @@ def main(today, vars=['sea_level','waves']):
                 s.ftp_dir = today
             
         for m in s.models:
+            # skip models not in listed vars
+            if m.variable not in vars:
+                continue
             print(datetime.now().strftime("%Y%m%d %H:%M"))
             print(' '.join((s.name, m.system, m.variable)))
             # prepare filename based on source and model information
@@ -48,47 +51,55 @@ def main(today, vars=['sea_level','waves']):
                 src = s.name
             basename = '_'.join([src, m.system, m.variable, today]) + m.ext
             filename = os.path.join(iws_datadir, 'forecasts', s.name, basename)
-            if s.srctype in ['ftp_login', 'ftp']:
-                download_ftp(s, m, tmpdir, filename, today)
-            elif s.srctype in ['http_server', 'http_login']:
-                download_http(s, m, filename, today, progress)
-            elif s.srctype == 'script':
-                download_script(current_dir + '/scripts/', s, m, filename, today)
+            # check if file alredy exists otherwise download
+            if os.path.isfile(filename):
+                print('file ' + filename + ' already exists, dowload skipped')
+            else:
+                if s.srctype in ['ftp_login', 'ftp']:
+                    download_ftp(s, m, tmpdir, filename, today)
+                elif s.srctype in ['http_server', 'http_login']:
+                    download_http(s, m, filename, today, progress)
+                elif s.srctype == 'script':
+                    download_script(current_dir + '/scripts/', s, m, filename, today)
+            # downlaod can be truncated, check if the file is valid
             if os.path.isfile(filename):
                 valid = check_time(filename, today, 48)
-                if valid:
+                if not valid:
+                    print('invalid file downloaded - deleted')
+                    os.remove(filename)
+                else:
                     if m.variable.endswith('waves'):
                         print(filename)
-#                        prepare_forecast_waves(s, m, filename, today)
+                        # for multiple files (e.g. wave models) the function prepare_forecast take care of merging
+                        prepare_forecast_waves(s, m, filename, today)
                     elif m.variable == 'sea_level':
+                        print(filename)
                         prepare_forecast_sea_level(s, m, filename, today)
                     else:
                         msg = 'Model variable not recognized'
                         print(msg)
-                else:
-                    print('invalid file downloaded - deleted')
-                    os.remove(filename)
     # create tmes and rotate
     if 'sea_level' in vars:
         psl = create_mmes('sea_level', today)
+
+        if psl == 0:
+            # check if exists previous tmes if not launch this script with old date as new argument
+            p = archive_tmes('sea_level', yesterday)
+            if p == 1:
+                # gapfilling
+                gap_days = int(config['gap_days'])
+                if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) <= datetime.now():
+                    main(yesterday)
     if 'waves' in vars:
         pwv = create_mmes('waves', today)
-    if psl == 0:
-        # check if exists previous tmes if not launch this script with old date as new argument
-        p = archive_tmes('sea_level', yesterday)
-        if p == 1:
-            # gapfilling
-            gap_days = int(config['gap_days'])
-            if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) <= datetime.now():
-                main(yesterday)
-    if pwv == 0:
-        # check if exists previous tmes if not launch this script with old date as new argument
-        p = archive_tmes('waves', yesterday)
-        if p == 1:
-            # gapfilling
-            gap_days = int(config['gap_days'])
-            if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) >= datetime.now():
-                main(yesterday)
+        if pwv == 0:
+            # check if exists previous tmes if not launch this script with old date as new argument
+            p = archive_tmes('waves', yesterday)
+            if p == 1:
+                # gapfilling
+                gap_days = int(config['gap_days'])
+                if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) >= datetime.now():
+                    main(yesterday)
 
 
 if __name__ == '__main__':
@@ -98,4 +109,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         if isinstance(datetime.strptime(sys.argv[1], "%Y%m%d"), datetime):
             datestring = sys.argv[1]
-    main(datestring)
+        if len(sys.argv) > 2:
+            # get single variable from second argument
+            singlevar = sys.argv[2]
+            main(datestring, [singlevar])
+        else:
+            # process mmes with the two variables
+            main(datestring, ['sea_level','waves'])

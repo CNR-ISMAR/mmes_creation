@@ -111,7 +111,7 @@ def download_http(source, model, filename, filedate=today, progress=False):
 
         # basic authentication
         sourceauth = HTTPBasicAuth(source.username, source.password)
-        if os.path.isfile(filename):
+        if os.path.isfile(filename): #TODO move check on main script
             print('file ' + filename + ' already exists skipping')
         else:
             filedir = os.path.dirname(filename)

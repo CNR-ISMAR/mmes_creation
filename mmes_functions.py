@@ -2,10 +2,12 @@
 
 import json
 import os
+import signal
+import sys
 import re
 from shutil import copy2
 from datetime import datetime, timedelta
-from subprocess import run
+from subprocess import run, call, Popen, PIPE, TimeoutExpired
 
 from cdo import Cdo
 # imports from local project
@@ -168,6 +170,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
     :return: 0 or error
     """
     variable = 'waves'
+    filedir = os.path.dirname(filename)
     proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.nc'
     outputdir = os.path.join(data_dir, 'mmes_components', filedate)
     processedfile = os.path.join(outputdir, proc_filename)
@@ -215,17 +218,50 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                     return
         # copy input file to tempfile and convert to NetCDF format
         # for grib file use ncl_convert2nc
-        if model.ext=='.grb':
-            cmd_arguments = ['ncl_convert2nc', filename, ]
+        # TODO genarilze for all grib or solve
+        if model.ext=='.grb' and model.system=='smmo':
+            # script style scripts/ncl_convert2nc.sh /usr3/iwsdata/forecasts/arso/arso_smmo_waves_20230411.grb /usr3/iwsdata/forecasts/arso SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL
+            # command style /usr/bin/ncl_convert2nc /usr3/iwsdata/forecasts/arso/arso_smmo_waves_20230411.grb -o /usr3/iwsdata/forecasts/arso -v forecast_time0,g0_lat_1,g0_lon_2,SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL
+            script = 'scripts/ncl_convert2nc.sh'
+            #set timeout in second
+            tmout = 60
+            dimensions = 'forecast_time0,g0_lat_1,g0_lon_2,'
+            cmd_arguments = ['ncl_convert2nc',  filename, '-o',  filedir,'-v',  dimensions + model.var_names]
+            cmdstring = ' '.join(cmd_arguments)
+            print(cmdstring)
             try:
-                p = run(cmd_arguments)
-                os.remove(filename)
-                filename = filename.replace(".grib", ".nc")
+                p = Popen(cmd_arguments, start_new_session=True) #TODO check if file already exists
+                # wait for suprocess timeut
+                p.wait(timeout=tmout)
+                # os.remove(filename)
+            except TimeoutExpired:
+                print(str(tmout) + 'seconds timeout reached')
+                print('Terminating the whole process group...', file=sys.stderr)
+                os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+                newfile = filename.replace(".grb", ".nc")
+                pass
             except Exception as e:
                 print('error in convert grib file: \n' + str(e))
-        # ARSO smmo file has now this variables
-        # "var_names": "SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL",
-        tempfile = cdo.copy(input=filename, options='-f nc')
+            # when subprocess is finished changhe filename for next step
+            if os.path.isfile(newfile):
+                cmd_arguments = ['ncrename', '-d'  'g0_lat_1,lat', '-d', 'g0_lon_2,lon', '-d', 'forecast_time0,time',  newfile]
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
+                run(cmd_arguments)
+                cmd_arguments = ['ncrename', '-v'  'g0_lat_1,lat', '-v', 'g0_lon_2,lon', '-v', 'forecast_time0,time',  newfile]
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
+                run(cmd_arguments)
+                tempfile = cdo.settaxis(filedate, "00:00:00", "1hour", input=newfile)
+                valid = check_time(tempfile,filedate,48)
+                if valid:
+                    filename = newfile
+                else:
+                    print('error in converted file')
+            # ARSO smmo file has now this variables
+        else:
+            # other models not arso
+            tempfile = cdo.copy(input=filename, options='-f nc')
         # step 1 extract wave variables in correct order
         if ms in steps['variable_selection']:
             varlist = model.var_names
@@ -246,6 +282,8 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                 # in place rename variables
                 # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
                 cmd_arguments.append(tempfile)
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
                 try:
                     p = run(cmd_arguments)
                 except Exception as e:
@@ -294,7 +332,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         # step 6 mask_outside_area
         if ms in steps['mask_outside_area']:
             maskfile = Config['mask_file']
-            tempfile = cdo.mul(input=[maskfile,tempfile], options='-O')
+            tempfile = cdo.mul(input=[maskfile,tempfile])
         # step 7 removes value  equal 0
         if ms in steps['remove_zero_values']:
             tempfile = cdo.setctomiss(0, input=tempfile)
