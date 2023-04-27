@@ -26,7 +26,7 @@
       "tiresias",
       "smmo"
     ],
-    "mask_before_interpolation": [
+    "dict_mask_before_interpolation": [
       {"adroms": "(:,0:1,0:135)" }
     ],
     "spatial_interpolation": [
@@ -39,7 +39,7 @@
       "adroms",
       "mfs"
     ],
-    "mask_after_interpolation": [
+    "dict_mask_after_interpolation": [
       {"smmo": "(:, 0:117, 0:508)"},
       {"adroms": "(:, 0:200,0:508)"}
     ],
@@ -60,8 +60,56 @@
     ]
   },
   "waves_prepare": {
-    "merge_components": ["swanita"],
-    "variable_selection": ["kassandra", "wam"]
+    "dict_merge_components":  [
+            {
+                "swanita": "4"
+            }
+    ],
+    "variable_selection": [
+      "kassandra",
+      "wam"
+    ],
+        "invert_latitude": [],
+        "convert_waves_direction": [],
+        "set_miss_value": [
+            "smmo"
+        ],
+        "change_int_float": [
+            "kassandra",
+            "wam",
+            "smmo"
+        ],
+        "temporal_interpolation": [
+            "kassandra",
+            "adrifs"
+        ],
+        "get_48hours": [
+            "kassandra",
+            "wam"
+        ],
+        "set_grid_unstructured": [
+            "wwm3"
+        ],
+        "spatial_interpolation": [
+            "wam"
+        ],
+        "extrapolate_missing": [
+            "wam",
+            "swanita"
+        ],
+        "dict_mask_after_interpolation": [
+            {
+                "swanita": "wsh(:,0:459,371:508)=-999;wmp(:,0:459,371:508)=-999;wmd(:,0:459,371:508)=-999;"
+            }
+        ],
+        "mask_outside_area": [
+            "kassandra",
+            "wam"
+        ],
+        "remove_zero_values": [
+            "wwm3",
+            "adrifs"
+        ]
   }
 }
 

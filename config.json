@@ -6,6 +6,6 @@
   "ensemble_variables": {"sea_level": ["sea_level"], "waves": ["wsh", "wmp", "wmd"]},
   "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc",
   "gap_days":  "3",
-  "min_components": "4",
+  "min_components": "3",
   "parametric_url":"AAAAMMDD"
 }
