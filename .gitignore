@@ -6,6 +6,8 @@ sources.json*
 
 *.bash*
 
+#configuration
+config.json
 
 .idea/
 __pycache__/
