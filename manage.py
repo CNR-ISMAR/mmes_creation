@@ -360,8 +360,7 @@ if __name__ == "__main__":
         'new': newsourcelist,
         'dir': checkdirs,
         'bin': checkbin,
-        'test': test_preparation,
-        'print': print_preparation
+        'test': test_preparation
     }
     # check action required
     # print(sys.argv[1])
@@ -389,3 +388,10 @@ if __name__ == "__main__":
     addhelp='add a source to source list and interactively define each step'
     parser.add_argument('action', choices=['add','mod','new','dir','bin','print'], help=msg)
     args = parser.parse_args()
+    try:
+        action_dict[args.action](sourcelist)
+    except TypeError:
+        try:
+            action_dict[args.action]()
+        except Exception as e:
+            print(e)

@@ -36,10 +36,11 @@ def main(today, vars):
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
                 s.ftp_dir = today
-            
+
         for m in s.models:
             # skip models not in listed vars
-            if m.variable not in vars:
+            # composite variables are in the form xxx_waves and sea level is in the form sea_level
+            if not (m.variable in vars or m.variable.split('_')[-1] in vars):
                 continue
             print(datetime.now().strftime("%Y%m%d %H:%M"))
             print(' '.join((s.name, m.system, m.variable)))
