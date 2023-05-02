@@ -29,7 +29,7 @@ Define_dir() {
 #  tmpdir="${iwsdir}/tmp"
 #  weidir="${bindir}/weights"
 #  mask="${bindir}/TMES_mask_002.nc"
-  motu="/usr/bin/python -m motuclient"
+  motu="python -m motuclient"
 
 
 

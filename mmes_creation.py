@@ -3,15 +3,16 @@
 import json
 import os
 import sys
+import argparse
 from _datetime import datetime, timedelta
 
-from manage import readsources
+from manage import readsources, selectsource, selectmodel
 from mmes_download import download_ftp, download_http, download_script
 from mmes_functions import create_mmes, archive_tmes, prepare_forecast_sea_level, prepare_forecast_waves
 from mmes_validate import check_time
 
 
-def main(today, vars):
+def main(today, vars, prompt=False):
     # load general config from json
     config = json.load(open(os.getcwd() + '/config.json'))
 
@@ -23,6 +24,10 @@ def main(today, vars):
     # load sources as object
     sources_file = config["sources_file"]
     sources = readsources(sources_file)
+    # if interactive select only one source
+    if prompt:
+        singlesrc = selectsource(sources)
+        sources = [singlesrc]
     # date of previous mmes
     yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
     # show download progress (use only in debug mode otherwise logging will be verbose)
@@ -36,7 +41,7 @@ def main(today, vars):
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
                 s.ftp_dir = today
-
+                continue
         for m in s.models:
             # skip models not in listed vars
             # composite variables are in the form xxx_waves and sea level is in the form sea_level
@@ -104,16 +109,12 @@ def main(today, vars):
 
 
 if __name__ == '__main__':
-
     datestring = datetime.now().strftime("%Y%m%d")  # type: str
-    # get datestring from first argument
-    if len(sys.argv) > 1:
-        if isinstance(datetime.strptime(sys.argv[1], "%Y%m%d"), datetime):
-            datestring = sys.argv[1]
-        if len(sys.argv) > 2:
-            # get single variable from second argument
-            singlevar = sys.argv[2]
-            main(datestring, [singlevar])
-        else:
-            # process mmes with the two variables
-            main(datestring, ['sea_level','waves'])
+    parser = argparse.ArgumentParser(description='Script to create MMES ensemble')
+    addhelp='launch with cron or interactively'
+    parser.add_argument('-d', '--date', default=datestring, help='date of the ensamble to create in the format AAAAMMDD if null use current date')
+    parser.add_argument('-v', '--variable', action='append', choices=['sea_level','waves'], help='Variable to consider (sea_level or waves)')
+    parser.add_argument('-i', '--interactive', action='store_true', help='interactive execution from CLI, allow user to choose only one source')
+    args = parser.parse_args()
+    vars = ['sea_level', 'waves'] if not args.variable else args.variable
+    main(args.date, vars, args.interactive )

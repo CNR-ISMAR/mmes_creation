@@ -190,18 +190,24 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['waves_prepare']
         ms = model.system
-        # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries widh model:system
+        # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries with model_system: numfiles
         for st in steps['dict_merge_components']:
             if ms in st.keys():
-                # get list of files with model system and var in the filename
-                # to do the merge  must be equal to value setted in st[ms] from processing.json config
+                # get list of files to group with the same source, model system and variable  in the filename
+                # prepare filename based on source and model information
+                if model.source != '':
+                    # some models have another source not their provider
+                    src = model.source
+                else:
+                    src = source.name
                 filedir = os.path.dirname(filename)
-                files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(r'.+' + ms + '.+' + filedate + '.+', f)]
-                if len(files) == int(st[ms]):
+                files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(r'.*' + src + '_' + ms + '.*' + filedate, f)]
+                # to do the merge  must be equal to value setted in st[ms] from processing.json config
+                if len(files) >= int(st[ms]):
                     # replace vars in filename
-                    for v in model.var_names.split(','):
-                        filename = filename.replace('_' + v + '_', '_')
-                        processedfile = processedfile.replace('_' + v + '_', '_')
+                    v = model.variable
+                    filename = filename.replace('_' + v + '_', '_waves_')
+                    processedfile = processedfile.replace('_' + v + '_', '_waves_')
                         # check if merged file was already processed
                     if os.path.isfile(processedfile):
                         print('prepared file exists, skipping')
