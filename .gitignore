@@ -5,7 +5,8 @@ sources.json.bak
 /sources*.json
 /sources*.json.bak
 /sources_test.json
-
+config.json
+processing.json
 
 .idea/
 __pycache__/
