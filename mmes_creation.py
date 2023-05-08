@@ -95,7 +95,7 @@ def main(today, vars, prompt=False):
                 # gapfilling
                 gap_days = int(config['gap_days'])
                 if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) <= datetime.now():
-                    main(yesterday)
+                    main(yesterday, vars)
     if 'waves' in vars:
         pwv = create_mmes('waves', today)
         if pwv == 0:
@@ -105,7 +105,7 @@ def main(today, vars, prompt=False):
                 # gapfilling
                 gap_days = int(config['gap_days'])
                 if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) >= datetime.now():
-                    main(yesterday)
+                    main(yesterday, vars)
 
 
 if __name__ == '__main__':
