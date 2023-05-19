@@ -25,8 +25,11 @@ source activate /path/to/new/virtual/environment/mmes/bin/activate
 ```
 pip install -r requirements.txt
 ```
-4. Prepare the data directory structure according to [documentation](https://cnr-ismar.github.io/mmes/_build/html/index.html)
-5. Manually edit **config.json** according to your needs
+4. Prepare the data directory structure according to [documentation](https://cnr-ismar.github.io/mmes/_build/html/index.html
+5Manually edit **config.json** according to your needs
+
+## Configuration
+
 6. From the main directory launch
 ```
 python manage.py new
@@ -36,6 +39,22 @@ to create a new source config file
 python manage.py mod
 ```
 to edit existing source config file
+
+```
+python manage.py add
+```
+to add a new source to current sources config file
+
+## Usage
+
+```
+python mmes_creation.py
+```
+to create a new ensemble for current day and all variables
+```
+python mmes_creation --help
+```
+for available options
 
 
 

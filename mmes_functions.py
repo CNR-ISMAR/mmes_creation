@@ -309,11 +309,14 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         if ms in steps['get_48hours']:
             # Get fields in the 00-23 time range
             tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
-        # step 5 set grid to unstructured
+        # step 5 set grid to unstructured this requires a corrispondent file for grid
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
-            tempfile = cdo.setgrid(us_gridfile, input=tempfile)
-        # step 6 spatial interpolation
+            if os.path.isfile(us_grid_file):
+                tempfile = cdo.setgrid(us_gridfile, input=tempfile)
+            else:
+                'grid file ' + us_grid_file + 'not found'
+        # step 6 spatial interpolation this  requires a corrispondent file for weights
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']
             int_gridfile = os.path.dirname(maskfile) + '/' + Config['ensemble_name'] + '_grid.txt'
