@@ -53,7 +53,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False)
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         # create Cdo and nco objects and set tmp dir
-        cdo.debug = False
+        cdo.debug = Config['debug']
         # load processing options
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['sea_level_prepare']
@@ -185,7 +185,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         # create Cdo and nco objects and set tmp dir
-        cdo.debug = True
+        cdo.debug = Config['debug']
         # load processing options
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['waves_prepare']
@@ -250,7 +250,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
             except Exception as e:
                 print('error in convert grib file: \n' + str(e))
             # when subprocess is finished changhe filename for next step
-            if os.path.isfile(newfile):
+            if newfile and os.path.isfile(newfile):
                 cmd_arguments = ['ncrename', '-d'  'g0_lat_1,lat', '-d', 'g0_lon_2,lon', '-d', 'forecast_time0,time',  newfile]
                 cmdstring = ' '.join(cmd_arguments)
                 print(cmdstring)
