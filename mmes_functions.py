@@ -312,10 +312,12 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         # step 5 set grid to unstructured this requires a corrispondent file for grid
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
-            if os.path.isfile(us_grid_file):
+            if os.path.isfile(us_gridfile):
+                us_gridfile = data_dir + '/config/weights/' + ms + '_' + variable +'.grid'
+            if os.path.isfile(us_gridfile):
                 tempfile = cdo.setgrid(us_gridfile, input=tempfile)
             else:
-                'grid file ' + us_grid_file + 'not found'
+                'grid file ' + us_gridfile + 'not found'
         # step 6 spatial interpolation this  requires a corrispondent file for weights
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']

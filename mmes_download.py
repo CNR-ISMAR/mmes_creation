@@ -73,6 +73,9 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
                 return
             #TODO iterate over subdir in filenames
             # parse list of files in remote dir
+            if len(_list)==0:
+                msg='Remote dir seems to be empty'
+                print(msg)
             for i in _list:
                 if str(i).strip().lower() == remotefile.lower():
                     print('Downlading ' + i)
