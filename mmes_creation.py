@@ -41,7 +41,6 @@ def main(today, vars, prompt=False):
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
                 s.ftp_dir = today
-
         for m in s.models:
             # skip models not in listed vars
             # composite variables are in the form xxx_waves and sea level is in the form sea_level
