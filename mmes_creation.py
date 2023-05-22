@@ -26,8 +26,10 @@ def main(today, vars, prompt=False):
     sources = readsources(sources_file)
     # if interactive select only one source
     if prompt:
-        singlesrc = selectsource(sources)
-        sources = [singlesrc]
+        selected = selectsource(sources)
+        # when user choose 0 function retunrs None
+        if selected != None:
+            sources = selected
     # date of previous mmes
     yesterday = (datetime.strptime(today, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
     # show download progress (use only in debug mode otherwise logging will be verbose)
