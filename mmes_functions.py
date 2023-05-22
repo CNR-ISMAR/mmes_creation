@@ -249,6 +249,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                 pass
             except Exception as e:
                 print('error in convert grib file: \n' + str(e))
+                newfile = None
             # when subprocess is finished changhe filename for next step
             if newfile and os.path.isfile(newfile):
                 cmd_arguments = ['ncrename', '-d'  'g0_lat_1,lat', '-d', 'g0_lon_2,lon', '-d', 'forecast_time0,time',  newfile]
