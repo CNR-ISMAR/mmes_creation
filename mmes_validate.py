@@ -50,6 +50,8 @@ def check_time(file, date_start, shape):
                 timesteps += [datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in m2]
             except ValueError:
                 print('Error while finding last date')
+            except:
+                print('Error in time dimension')
     # get first date and last date
     first_date = min(timesteps)
     last_date = max(timesteps)

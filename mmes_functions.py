@@ -204,7 +204,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                 pattern = r'.*' + src + '_' + ms + '.*'+ variable + '.*' + filedate
                 files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(pattern, f)]
                 # to do the merge  must be equal to value setted in st[ms] from processing.json config
-                if len(files) >= int(st[ms]):
+                if len(files) == int(st[ms]):
                     # replace vars in filename
                     v = model.variable
                     filename = filename.replace('_' + v + '_', '_waves_')
@@ -236,6 +236,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
             cmd_arguments = ['ncl_convert2nc',  filename, '-o',  filedir,'-v',  dimensions + model.var_names]
             cmdstring = ' '.join(cmd_arguments)
             print(cmdstring)
+            newfile = None
             try:
                 p = Popen(cmd_arguments, start_new_session=True) #TODO check if file already exists
                 # wait for suprocess timeut
