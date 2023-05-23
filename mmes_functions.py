@@ -204,7 +204,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                 pattern = r'.*' + src + '_' + ms + '.*'+ variable + '.*' + filedate
                 files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(pattern, f)]
                 # to do the merge  must be equal to value setted in st[ms] from processing.json config
-                if len(files) >= int(st[ms]):
+                if len(files) == int(st[ms]):
                     # replace vars in filename
                     v = model.variable
                     filename = filename.replace('_' + v + '_', '_waves_')
