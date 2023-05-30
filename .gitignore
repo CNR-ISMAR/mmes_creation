@@ -2,6 +2,9 @@
 sources.py
 sources.json
 sources.json.bak
+sources.json*
+*.bash*
+#configuration
 /sources*.json
 /sources*.json.bak
 /sources_test.json
