@@ -27,8 +27,12 @@ def check_time(file, date_start, shape):
     # calculate date_start and date end
     startdate = datetime.strptime(date_start, "%Y%m%d")
     enddate = startdate + timedelta(hours=int(shape)-1)
-    # get info from cdo sinfon
-    info = cdo.sinfon(input=file)
+    try:
+    	# get info from cdo sinfon
+    	info = cdo.sinfon(input=file)
+    except:
+        print('error  opening ' + file)
+        return False 
     # set empty variables
     first_date = last_date = ''
     timesteps = []

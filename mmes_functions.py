@@ -236,12 +236,12 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
             cmd_arguments = ['ncl_convert2nc',  filename, '-o',  filedir,'-v',  dimensions + model.var_names]
             cmdstring = ' '.join(cmd_arguments)
             print(cmdstring)
-            newfile = None
             try:
                 p = Popen(cmd_arguments, start_new_session=True) #TODO check if file already exists
                 # wait for suprocess timeut
                 p.wait(timeout=tmout)
                 # os.remove(filename)
+                newfile = filename.replace(".grb", ".nc")
             except TimeoutExpired:
                 print(str(tmout) + 'seconds timeout reached')
                 print('Terminating the whole process group...', file=sys.stderr)
@@ -252,7 +252,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                 print('error in convert grib file: \n' + str(e))
                 newfile = None
             # when subprocess is finished changhe filename for next step
-            if newfile and os.path.isfile(newfile):
+            if os.path.isfile(newfile):
                 cmd_arguments = ['ncrename', '-d'  'g0_lat_1,lat', '-d', 'g0_lon_2,lon', '-d', 'forecast_time0,time',  newfile]
                 cmdstring = ' '.join(cmd_arguments)
                 print(cmdstring)
@@ -267,6 +267,8 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                     filename = newfile
                 else:
                     print('error in converted file')
+            else:
+              tempfile = cdo.settaxis(filedate, "00:00:00", "1hour", input=newfile)
             # ARSO smmo file has now this variables
         else:
             # other models not arso
