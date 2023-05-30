@@ -46,13 +46,24 @@ python manage.py add
 to add a new source to current sources config file
 
 ## Usage
-
+type
 ```
 python mmes_creation.py
 ```
 to create a new ensemble for current day and all variables
 ```
-python mmes_creation --help
+python mmes_creation.py -i 
+```
+to run the program in a interactive manner: you will be prompted which source and which model to process
+and you can skyp the ensemble creation
+
+```
+python mmes_creation.py -v "waves" -d 20230530
+```
+to create a new ensemble only for variable "waves" and for specific date 30 may 2023. Useful to fill gaps in history
+
+```
+python mmes_creation.py --help
 ```
 for available options
 
