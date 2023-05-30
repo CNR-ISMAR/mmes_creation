@@ -154,7 +154,7 @@ def selectsource(srclist):
         except ValueError:
             print('Enter an integer betwwen 0 and ' + str(len(srclist) - 1))
             continue
-        # user can choose 0 for all sources (used in interactive mmes creation)
+        # user can choose -1 for all sources (used in interactive mmes creation)
         if n < 0:
             return None
         if n not in range(len(srclist)):
@@ -165,6 +165,7 @@ def selectsource(srclist):
 
 def selectmodel(modelslist):
     while True:
+        print('-1 all models')
         n = None
         for i in range(len(modelslist)):
             m = modelslist[i]
@@ -175,6 +176,9 @@ def selectmodel(modelslist):
         except ValueError:
             print('Enter an integer betwwen 0 and ' + str(len(modelslist) - 1))
             continue
+        # user can choose -1 for all models (used in interactive mmes creation)
+        if n < 0:
+            return None
         if n not in range(len(modelslist)):
             print('Invalid value')
         else:

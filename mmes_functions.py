@@ -84,6 +84,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False)
                 # in place rename variables
                 # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
                 cmd_arguments.append(tempfile)
+                print(' '.join(cmd_arguments))
                 try:
                     p = run(cmd_arguments)
                 except Exception as e:
@@ -111,6 +112,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False)
              if ms in s.keys():
                  modmask = s[ms]
                  cmd_arguments = ['ncap2', '-s', modmask, tempfile]
+                 print(' '.join(cmd_arguments))
                  try:
                      p = run(cmd_arguments)
                  except Exception as e:
@@ -134,6 +136,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False)
             if ms in s.keys():
                 modmask = s[ms]
                 cmd_arguments = ['ncap2', '-s', modmask , tempfile]
+                print('_'.join(cmd_arguments))
                 try:
                     p = run(cmd_arguments)
                 except Exception as e:
@@ -236,7 +239,6 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
             cmd_arguments = ['ncl_convert2nc',  filename, '-o',  filedir,'-v',  dimensions + model.var_names]
             cmdstring = ' '.join(cmd_arguments)
             print(cmdstring)
-            newfile = None
             try:
                 p = Popen(cmd_arguments, start_new_session=True) #TODO check if file already exists
                 # wait for suprocess timeut
@@ -339,6 +341,7 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
             if ms in s.keys():
                 modmask = s[ms]
                 cmd_arguments = ['ncap2', '-s', modmask , tempfile]
+                print(' '.join(cmd_arguments))
                 try:
                     p = run(cmd_arguments)
                 except Exception as e:
@@ -361,7 +364,7 @@ def write_grid(maskfile, gridfile):
         fg.write("\n".join(map(str, content)))
 
 
-def create_mmes(var, datestring):
+def create_mmes(var, datestring,prompt):
     """ merge tmes components based on current variable
      directories are hard coded
     """
@@ -372,7 +375,7 @@ def create_mmes(var, datestring):
     newtmes = os.path.join(iws_datadir, ensemble_name, ensemble_name + '_' + var + '_' + datestring + '.nc')
     if os.path.isfile(newtmes):
         # TODO check if newtmes has new models before overwrite
-        print("File " + newtmes + " already exists, overwriting")
+        print("File " + newtmes + " already exists, will be overwritten")
 
     # list all file for var and date - note that tide file has .tide extension not .nc
     pattern = r'.+' + var + '.+' + datestring + '.+nc$'
@@ -383,6 +386,15 @@ def create_mmes(var, datestring):
         msg = 'Too few components. Found  ' + str(len(files)) + ' files for ' + var
         print(msg)
         return 1
+    if prompt:
+        #print list of files
+        print('Ensemble components available:')
+        for f in files:
+            print(f)
+        creation = input('Continue with ensemble creation for ' + var + '?[Yes/No] ')
+        if creation.lower() in ['no','n']:
+            print('Ensemble not created')
+            return 2
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
         # create mean
@@ -398,6 +410,7 @@ def create_mmes(var, datestring):
         # add global attribute ensamble description
         ens_desc = get_models(files)
         cmd_arguments = ['ncatted', '-O', '-h', '-a', 'source,global,o,c,"' + ens_desc + '"', newtmes]
+        print(' '.join(cmd_arguments))
         try:
             p = run(cmd_arguments)
         except Exception as e:
@@ -426,11 +439,13 @@ def create_mmes(var, datestring):
         # change negative values sh line 75 (use cdo expr instead of ncap2)
         tempfile_mean_wmd_dg = cdo.expr('"wmd_mean=(wmd_mean<0)?(wmd_mean + 360):(wmd_mean)"', input= tempfile_mean_wmd_dg)
         cmd_arguments = ['ncrename', '-v', 'wmd_mean,wmd-mean', tempfile_mean_wmd_dg]
+        print(' '.join(cmd_arguments))
         try:
             p = run(cmd_arguments)
         except Exception as e:
             print(str(e))
         cmd_arguments = ['ncrename', '-v', 'wsh,wsh-mean', '-v', 'wmp,wmp-mean', tempfile_mean_wshp]
+        print(' '.join(cmd_arguments))
         try:
             p = run(cmd_arguments)
         except Exception as e:
@@ -440,11 +455,13 @@ def create_mmes(var, datestring):
         # ensemble standard deviation
         tempfile_std_wshp = cdo.ensstd(input=wshp_files, options='--sortname')
         cmd_arguments = ['ncrename', '-v', 'wsh,wsh-std', '-v', 'wmp,wmp-std',  tempfile_std_wshp]
+        print(' '.join(cmd_arguments))
         p = run(cmd_arguments)
         # calculate std deviation from ensamble mean sh line 84
         tempfile_std_wmd = cdo.expr('"wdstd=sqrt(1.-(swmd*swmd+cwmd*cwmd))"', input=tempfile_mean_wmd, options='-O')
         tempfile_std_wmd = cdo.expr('"wmd_std=deg(asin(wdstd)*(1.+0.15470054*wdstd^3))"', input=tempfile_std_wmd, options='-O')
         cmd_arguments = ['ncrename', '-v', 'wmd_std,wmd-std',  tempfile_std_wmd]
+        print(' '.join(cmd_arguments))
         p = run(cmd_arguments)
         merged_std = cdo.merge(input=[tempfile_std_wshp,tempfile_std_wmd])
         merged = cdo.merge(input=[merged_mean,merged_std])
@@ -453,6 +470,7 @@ def create_mmes(var, datestring):
         # add global attribute ensamble description
         ens_desc = get_models(files)
         cmd_arguments = ['ncatted', '-O', '-h', '-a', 'source,global,o,c,"' + ens_desc + '"', newtmes]
+        print(' '.join(cmd_arguments))
         try:
             p = run(cmd_arguments)
         except Exception as e:
@@ -469,6 +487,7 @@ def create_mmes(var, datestring):
         }
         for key, value in standard_names.items():
             cmd_arguments = ['ncatted','-O', '-a', 'standard_name,' + key + ',o,c,"' + value + '"', newtmes]
+            print(' '.join(cmd_arguments))
             p = run(cmd_arguments)
         pass
     else:

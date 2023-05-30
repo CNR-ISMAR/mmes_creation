@@ -38,7 +38,6 @@ def check_time(file, date_start, shape):
         if m1:
             try:
                 reftime = datetime.strptime(m1.group(1), "%Y-%m-%d %H:%M:%S")
-
             except ValueError:
                 print('Error while finding reftime')
             continue # next loop
@@ -52,6 +51,9 @@ def check_time(file, date_start, shape):
                 print('Error while finding last date')
             except:
                 print('Error in time dimension')
+    # if no date are present abord
+    if len(timesteps)==0:
+        return False
     # get first date and last date
     first_date = min(timesteps)
     last_date = max(timesteps)

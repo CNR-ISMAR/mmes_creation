@@ -43,6 +43,12 @@ def main(today, vars, prompt=False):
         if 'ftp_dir' in s.__dict__.keys():
             if s.ftp_dir == 'currentdate':
                 s.ftp_dir = today
+        # if interactive select only one model
+        if prompt:
+            mod_selected = selectmodel(s.models)
+            # when user choose -1 function returns None
+            if mod_selected != None:
+                s.models = [mod_selected]
         for m in s.models:
             # skip models not in listed vars
             # composite variables are in the form xxx_waves and sea level is in the form sea_level
@@ -87,8 +93,8 @@ def main(today, vars, prompt=False):
                         print(msg)
     # create tmes and rotate
     if 'sea_level' in vars:
-        psl = create_mmes('sea_level', today)
-
+        # pass parameter interactive to creation function
+        psl = create_mmes('sea_level', today, prompt)
         if psl == 0:
             # check if exists previous tmes if not launch this script with old date as new argument
             p = archive_tmes('sea_level', yesterday)
@@ -98,7 +104,7 @@ def main(today, vars, prompt=False):
                 if datetime.strptime(yesterday, "%Y%m%d") + timedelta(days=gap_days) <= datetime.now():
                     main(yesterday, vars)
     if 'waves' in vars:
-        pwv = create_mmes('waves', today)
+        pwv = create_mmes('waves', today, prompt)
         if pwv == 0:
             # check if exists previous tmes if not launch this script with old date as new argument
             p = archive_tmes('waves', yesterday)
