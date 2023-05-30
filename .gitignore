@@ -3,11 +3,13 @@ sources.py
 sources.json
 sources.json.bak
 sources.json*
-
 *.bash*
-
 #configuration
+/sources*.json
+/sources*.json.bak
+/sources_test.json
 config.json
+processing.json
 
 .idea/
 __pycache__/
@@ -15,6 +17,9 @@ tmp/
 data/
 forecasts/
 /venv/
+#downloaded data
+*.nc
+*.grib
 
 scripts/remap_grid_ADRION
 virtualenv.sh
@@ -26,3 +31,5 @@ docs/miglioramenti.txt
 /status.json
 /sources_full.json
 /sources_test.json
+
+.bash_eternal_history

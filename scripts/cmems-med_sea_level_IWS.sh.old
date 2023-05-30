@@ -33,8 +33,7 @@ Define_dir() {
 
 
 
-  #lfile="med-cmcc-ssh-an-fc-hts"
-  lfile="cmems_mod_med_phy-ssh_anfc_4.2km_PT1HTS-m"
+  lfile="med-cmcc-ssh-an-fc-hts"
   #slfile="cmcc_mfs_sea_level_${date}.nc"
   slfile=$2
   locdir=`dirname "$slfile"`
@@ -56,7 +55,7 @@ Get_myocean() {
 # Set your CMEMS user and password
    user=${user}
    pass=${pass}
-   murl="https://nrt.cmems-du.eu/motu-web/Motu"
+   murl="http://nrt.cmems-du.eu/motu-web/Motu"
    surl="MEDSEA_ANALYSISFORECAST_PHY_006_013-TDS"
    tsleep=10
    varname="zos"

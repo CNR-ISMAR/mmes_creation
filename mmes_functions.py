@@ -2,10 +2,12 @@
 
 import json
 import os
+import signal
+import sys
 import re
 from shutil import copy2
 from datetime import datetime, timedelta
-from subprocess import run
+from subprocess import run, call, Popen, PIPE, TimeoutExpired
 
 from cdo import Cdo
 # imports from local project
@@ -24,7 +26,7 @@ ensemble_name = Config["ensemble_name"]
 data_dir = Config['data_dir']
 cdo = Cdo(tempdir=data_dir+'/tmp')
 
-def prepare_forecast_sea_level(source, model, filename, filedate):
+def prepare_forecast_sea_level(source, model, filename, filedate, verbose=False):
     """
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -51,7 +53,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         # create Cdo and nco objects and set tmp dir
-        cdo.debug = False
+        cdo.debug = Config['debug']
         # load processing options
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['sea_level_prepare']
@@ -59,9 +61,12 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         tempfile = filename
 
         # step 1 preapare variables convert to NetCDF if file is .grib
-        if ms in steps['variable_selection']:
+        key = 'variable_selection'
+        if ms in steps[key]:
+            msg = "processing step:  " +  key
             varlist = model.var_names
             tempfile = cdo.selvar(varlist, input=tempfile, options="-f nc")
+
             # set miss value
             miss = model.miss_value
             if miss != '':
@@ -155,7 +160,7 @@ def prepare_forecast_sea_level(source, model, filename, filedate):
         cdo.copy(input=tempfile,output=processedfile)
 
 
-def prepare_forecast_waves(source, model, filename, filedate):
+def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
     """
     Just after downlading the forecast from provider's server prepare the forecast on the grid
     :param source:
@@ -165,6 +170,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
     :return: 0 or error
     """
     variable = 'waves'
+    filedir = os.path.dirname(filename)
     proc_filename = os.path.splitext(os.path.basename(filename))[0] + '.nc'
     outputdir = os.path.join(data_dir, 'mmes_components', filedate)
     processedfile = os.path.join(outputdir, proc_filename)
@@ -179,35 +185,94 @@ def prepare_forecast_waves(source, model, filename, filedate):
         date = datetime.strptime(filedate, "%Y%m%d").strftime("%Y-%m-%d")
         date2 = (datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         # create Cdo and nco objects and set tmp dir
-        cdo.debug = True
+        cdo.debug = Config['debug']
         # load processing options
         processing_opt = json.load(open(os.getcwd() + '/processing.json'))
         steps = processing_opt['waves_prepare']
         ms = model.system
-
-        # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries widh model:system
+        # step 0 merge downloaded components if needed steps['merge'components'] has a list of dictionaries with model_system: numfiles
         for st in steps['dict_merge_components']:
             if ms in st.keys():
-                # get list of files with model system and var in the filename
-                # to do the merge  must be equal to value setted in st[ms] from processing.json config
+                # get list of files to group with the same source, model system and variable  in the filename
+                # prepare filename based on source and model information
+                if model.source != '':
+                    # some models have another source not their provider
+                    src = model.source
+                else:
+                    src = source.name
                 filedir = os.path.dirname(filename)
-                files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(r'.+' + ms + '.+' + filedate + '.+', f)]
+                pattern = r'.*' + src + '_' + ms + '.*'+ variable + '.*' + filedate
+                files = [os.path.join(filedir, f) for f in os.listdir(filedir)  if re.match(pattern, f)]
+                # to do the merge  must be equal to value setted in st[ms] from processing.json config
                 if len(files) == int(st[ms]):
                     # replace vars in filename
-                    for v in model.var_names.split(','):
-                        filename = filename.replace('_' + v + '_', '_')
-                        processedfile = processedfile.replace('_' + v + '_', '_')
+                    v = model.variable
+                    filename = filename.replace('_' + v + '_', '_waves_')
+                    processedfile = processedfile.replace('_' + v + '_', '_waves_')
                         # check if merged file was already processed
                     if os.path.isfile(processedfile):
                         print('prepared file exists, skipping')
                         return 0
                     cdo.merge(input=files,output=filename)
+                    if verbose:
+                        #print step
+                        print('**** dict_merge_components ****')
+                        #print command
+                        print('cdo merge ' + str(files) + '-o' + filename)
                 else:
                     msg = str(len(files)) + ' of ' + st[ms] + ' files present for model ' + ms
                     print(msg)
                     return
         # copy input file to tempfile and convert to NetCDF format
-        tempfile = cdo.copy(input=filename, options='-f nc')
+        # for grib file use ncl_convert2nc
+        # TODO genarilze for all grib or solve
+        if model.ext=='.grb' and model.system=='smmo':
+            # script style scripts/ncl_convert2nc.sh /usr3/iwsdata/forecasts/arso/arso_smmo_waves_20230411.grb /usr3/iwsdata/forecasts/arso SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL
+            # command style /usr/bin/ncl_convert2nc /usr3/iwsdata/forecasts/arso/arso_smmo_waves_20230411.grb -o /usr3/iwsdata/forecasts/arso -v forecast_time0,g0_lat_1,g0_lon_2,SWH_GDS0_MSL,MWP_GDS0_MSL,MWD_GDS0_MSL
+            script = 'scripts/ncl_convert2nc.sh'
+            #set timeout in second
+            tmout = 60
+            dimensions = 'forecast_time0,g0_lat_1,g0_lon_2,'
+            cmd_arguments = ['ncl_convert2nc',  filename, '-o',  filedir,'-v',  dimensions + model.var_names]
+            cmdstring = ' '.join(cmd_arguments)
+            print(cmdstring)
+            try:
+                p = Popen(cmd_arguments, start_new_session=True) #TODO check if file already exists
+                # wait for suprocess timeut
+                p.wait(timeout=tmout)
+                # os.remove(filename)
+                newfile = filename.replace(".grb", ".nc")
+            except TimeoutExpired:
+                print(str(tmout) + 'seconds timeout reached')
+                print('Terminating the whole process group...', file=sys.stderr)
+                os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+                newfile = filename.replace(".grb", ".nc")
+                pass
+            except Exception as e:
+                print('error in convert grib file: \n' + str(e))
+                newfile = None
+            # when subprocess is finished changhe filename for next step
+            if os.path.isfile(newfile):
+                cmd_arguments = ['ncrename', '-d'  'g0_lat_1,lat', '-d', 'g0_lon_2,lon', '-d', 'forecast_time0,time',  newfile]
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
+                run(cmd_arguments)
+                cmd_arguments = ['ncrename', '-v'  'g0_lat_1,lat', '-v', 'g0_lon_2,lon', '-v', 'forecast_time0,time',  newfile]
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
+                run(cmd_arguments)
+                tempfile = cdo.settaxis(filedate, "00:00:00", "1hour", input=newfile)
+                valid = check_time(tempfile,filedate,48)
+                if valid:
+                    filename = newfile
+                else:
+                    print('error in converted file')
+            else:
+              tempfile = cdo.settaxis(filedate, "00:00:00", "1hour", input=newfile)
+            # ARSO smmo file has now this variables
+        else:
+            # other models not arso
+            tempfile = cdo.copy(input=filename, options='-f nc')
         # step 1 extract wave variables in correct order
         if ms in steps['variable_selection']:
             varlist = model.var_names
@@ -228,6 +293,8 @@ def prepare_forecast_waves(source, model, filename, filedate):
                 # in place rename variables
                 # example: cmd_arguments = ['ncrename', '-v', 'dslm,sea_level', tempfile]
                 cmd_arguments.append(tempfile)
+                cmdstring = ' '.join(cmd_arguments)
+                print(cmdstring)
                 try:
                     p = run(cmd_arguments)
                 except Exception as e:
@@ -246,11 +313,16 @@ def prepare_forecast_waves(source, model, filename, filedate):
         if ms in steps['get_48hours']:
             # Get fields in the 00-23 time range
             tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
-        # step 5 set grid to unstructured
+        # step 5 set grid to unstructured this requires a corrispondent file for grid
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
-            tempfile = cdo.setgrid(us_gridfile, input=tempfile)
-        # step 6 spatial interpolation
+            if os.path.isfile(us_gridfile):
+                us_gridfile = data_dir + '/config/weights/' + ms + '_' + variable +'.grid'
+            if os.path.isfile(us_gridfile):
+                tempfile = cdo.setgrid(us_gridfile, input=tempfile)
+            else:
+                'grid file ' + us_gridfile + 'not found'
+        # step 6 spatial interpolation this  requires a corrispondent file for weights
         if ms in steps['spatial_interpolation']:
             maskfile = Config['mask_file']
             int_gridfile = os.path.dirname(maskfile) + '/' + Config['ensemble_name'] + '_grid.txt'
@@ -276,7 +348,7 @@ def prepare_forecast_waves(source, model, filename, filedate):
         # step 6 mask_outside_area
         if ms in steps['mask_outside_area']:
             maskfile = Config['mask_file']
-            tempfile = cdo.mul(input=[maskfile,tempfile], options='-O')
+            tempfile = cdo.mul(input=[maskfile,tempfile])
         # step 7 removes value  equal 0
         if ms in steps['remove_zero_values']:
             tempfile = cdo.setctomiss(0, input=tempfile)

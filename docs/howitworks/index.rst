@@ -51,6 +51,25 @@ If not already presente the directory structure is automatically created by the 
     python manage.py dir
 
 
+How to run the program
++++++++++++++++++++++++
+
+From command line interface activate the virtualenv and launch
+
+..parsed--literal::
+
+    python mmes_creation.py
+
+To create ensemble for both variable (sea_level, waves) as stated in :guilabel:`config.json` file for the current date
+
+Other options are
+
+-d date (in the form of string YYYMMDD)
+
+-v variable (sea_level | waves)
+
+-i run in interactive mode allow select only one source
+
 1. Retrieve and download phase
 +++++++++++++++++++++++++++++++
 

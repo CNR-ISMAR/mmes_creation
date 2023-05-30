@@ -27,8 +27,12 @@ def check_time(file, date_start, shape):
     # calculate date_start and date end
     startdate = datetime.strptime(date_start, "%Y%m%d")
     enddate = startdate + timedelta(hours=int(shape)-1)
-    # get info from cdo sinfon
-    info = cdo.sinfon(input=file)
+    try:
+    	# get info from cdo sinfon
+    	info = cdo.sinfon(input=file)
+    except:
+        print('error  opening ' + file)
+        return False 
     # set empty variables
     first_date = last_date = ''
     timesteps = []
@@ -50,6 +54,8 @@ def check_time(file, date_start, shape):
                 timesteps += [datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in m2]
             except ValueError:
                 print('Error while finding last date')
+            except:
+                print('Error in time dimension')
     # get first date and last date
     first_date = min(timesteps)
     last_date = max(timesteps)

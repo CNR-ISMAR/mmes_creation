@@ -7,5 +7,6 @@
   "mask_file": "{data_dir}/config/mask/TMES_mask_002_ext.nc",
   "gap_days":  "3",
   "min_components": "3",
-  "parametric_url":"AAAAMMDD"
+  "parametric_url":"AAAAMMDD",
+  "debug": "True"
 }

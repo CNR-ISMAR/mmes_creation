@@ -138,8 +138,14 @@ def readsources(filename):
     return obj_sources
 
 def selectsource(srclist):
+    """
+    Select single source from source list using user input.
+    :param scrlist: The source list object
+    :returns: single source object or None if user choose 0
+    """
     while True:
         n = None
+        print('-1 all sources')
         for i in range(len(srclist)):
             print(str(i) + ' ' + srclist[i].name + ' (' + str(len(srclist[i].models)) + ' models)')
         prompt = 'Which source would you like to choose? [enter number]'
@@ -148,11 +154,14 @@ def selectsource(srclist):
         except ValueError:
             print('Enter an integer betwwen 0 and ' + str(len(srclist) - 1))
             continue
+        # user can choose 0 for all sources (used in interactive mmes creation)
+        if n < 0:
+            return None
         if n not in range(len(srclist)):
             print('Invalid value')
         else:
             break
-    return srclist[n]
+    return [srclist[n]]
 
 def selectmodel(modelslist):
     while True:
@@ -330,7 +339,7 @@ def newsourcelist():
 def test_preparation(sourcelist, print=False):
 
     # TODO  select source and model and launch prepare function on it
-     s = selectsource(sourcelist)
+     s = selectsource(sourcelist)[0]
      m = selectmodel(s.models)
 
 
@@ -360,8 +369,7 @@ if __name__ == "__main__":
         'new': newsourcelist,
         'dir': checkdirs,
         'bin': checkbin,
-        'test': test_preparation,
-        'print': print_preparation
+        'test': test_preparation
     }
     # check action required
     # print(sys.argv[1])
@@ -389,3 +397,10 @@ if __name__ == "__main__":
     addhelp='add a source to source list and interactively define each step'
     parser.add_argument('action', choices=['add','mod','new','dir','bin','print'], help=msg)
     args = parser.parse_args()
+    try:
+        action_dict[args.action](sourcelist)
+    except TypeError:
+        try:
+            action_dict[args.action]()
+        except Exception as e:
+            print(e)

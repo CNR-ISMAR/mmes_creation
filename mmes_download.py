@@ -5,7 +5,7 @@ from subprocess import call, run, CompletedProcess
 import shutil
 import requests
 from requests.auth import HTTPBasicAuth
-
+from progressbar import ProgressBar, Percentage
 from datetime import datetime, timedelta
 from ftplib import FTP, all_errors
 
@@ -23,7 +23,6 @@ today = now.strftime("%Y%m%d")
 # Password:  ModelZaOcean18
 
 # download a source  via ftp login
-
 
 def download_ftp(source, model, tmpdir, filename, filedate=today):
     fileisodate = filedate[0:4] + '-' + filedate[4:6] + '-' + filedate[6:8]
@@ -47,6 +46,7 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
         os.mkdir(filedir, 0o0775)
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir, 0o0775)
+
     with FTP(source.url) as ftp:
         try:
             # test connection
@@ -73,14 +73,21 @@ def download_ftp(source, model, tmpdir, filename, filedate=today):
                 return
             #TODO iterate over subdir in filenames
             # parse list of files in remote dir
+            if len(_list)==0:
+                msg='Remote dir seems to be empty'
+                print(msg)
             for i in _list:
                 if str(i).strip().lower() == remotefile.lower():
                     print('Downlading ' + i)
+                    dstfile = open(tmpdir + i, 'wb')
+
                     try:
-                        ftp.retrbinary('RETR ' + i, open(tmpdir + i, 'wb').write)
+                        size = ftp.size(i)
+                        ftp.retrbinary('RETR ' + i, dstfile.write)
                         print('done')
-                    except:
+                    except all_errors as e:
                         print('error on ftp download')
+                        print(e)
                         pass
                     try:
                         shutil.copy2(tmpdir + i, filename)
@@ -111,7 +118,7 @@ def download_http(source, model, filename, filedate=today, progress=False):
 
         # basic authentication
         sourceauth = HTTPBasicAuth(source.username, source.password)
-        if os.path.isfile(filename):
+        if os.path.isfile(filename): #TODO move check on main script
             print('file ' + filename + ' already exists skipping')
         else:
             filedir = os.path.dirname(filename)
