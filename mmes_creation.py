@@ -20,9 +20,12 @@ def main(today, vars, prompt=False):
     iws_datadir = config["data_dir"]
     current_dir = os.getcwd()
     tmpdir = iws_datadir + '/tmp/'
-    # today = '20191223'
-    # load sources as object
     sources_file = config["sources_file"]
+    # today = '20191223'
+    if prompt:
+       today  = input('Insert the date for create ensemble [current: ' + today + ']') or today
+       sources_file = input('Type the sources file to use [current: ' +  sources_file + ']') or sources_file
+    # load sources as object
     sources = readsources(sources_file)
     # if interactive select only one source
     if prompt:

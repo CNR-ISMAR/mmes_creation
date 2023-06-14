@@ -270,6 +270,13 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
                     filename = newfile
                 else:
                     print('error in converted file')
+		#this  part raise error sometimes
+                # this raise error in ARSO forecast
+                try:
+                  tempfile = cdo.seldate(date+"T00:00:00,"+date2+"T23:00:00", input=tempfile)
+                except:
+                  print('error in get_48hours')
+                  return 1
             else:
               tempfile = cdo.settaxis(filedate, "00:00:00", "1hour", input=newfile)
             # ARSO smmo file has now this variables
@@ -315,7 +322,12 @@ def prepare_forecast_waves(source, model, filename, filedate, verbose=False):
         # step 4 get only first 48 hours
         if ms in steps['get_48hours']:
             # Get fields in the 00-23 time range
-            tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
+            # this raise error in ARSO forecast
+            try:
+                tempfile = cdo.seldate(date + "T00:00:00," + date2 + "T23:00:00", input=tempfile)
+            except:
+                print('error in get_48hours')
+                return 1
         # step 5 set grid to unstructured this requires a corrispondent file for grid
         if ms in steps['set_grid_unstructured']:
             us_gridfile = data_dir + '/config/weights/' +  ms + '.grid'
@@ -391,12 +403,14 @@ def create_mmes(var, datestring,prompt):
         return 1
     if prompt:
         #print list of files
-        print('Ensemble components available:')
+        print(str(len(files)) + ' ensemble components available:')
         for f in files:
             print(f)
         creation = input('Continue with ensemble creation for ' + var + '?[Yes/No] ')
-        if creation.lower() in ['no','n']:
-            print('Ensemble not created')
+        if creation.lower() in ['yes','y']:
+            pass
+        else:
+            print(var + ' ensemble not created')
             return 2
     # ---------------- Sea Level creation section ---------------
     if var == 'sea_level':
